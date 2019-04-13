@@ -10,6 +10,9 @@ public:
         // bins
         int num_examples_before_shrink);
 
+
+    bool is_gamma_significant() const;
+
     void update();
 
 private:

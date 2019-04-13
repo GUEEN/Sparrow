@@ -8,3 +8,7 @@ Learner::Learner(int max_leaves,
     num_examples_before_shrink(num_examples_before_shrink) {
 
 }
+
+bool Learner::is_gamma_significant() const {
+    return tree_max_rho_gamma >= min_gamma || root_rho_gamma >= min_gamma;
+}
