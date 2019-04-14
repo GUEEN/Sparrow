@@ -1,26 +1,49 @@
 #pragma once
 
+#include "Bins.h"
 #include "Tree.h"
+#include "SerialStorage.h"
+
+const double GAMMA_GAP = 0.0;
+const int NUM_RULES = 2;
+
+typedef std::vector<std::vector<std::vector<double[NUM_RULES]>>> ScoreBoard;
 
 class Learner {
 public:
-    Learner(int max_leaves,
+    Learner(
+        int max_leaves,
         double min_gamma,
         double default_gamma,
-        // bins
-        int num_examples_before_shrink);
-
+        int num_examples_before_shrink,
+        const std::vector<Bins>& bins,
+        Range range);
 
     bool is_gamma_significant() const;
 
-    void update();
+    Tree Learner::update(
+        const ExampleInSampleSet& data,
+        const std::vector<Example>& validate_set1,
+        const std::vector<double>& validate_w1,
+        const std::vector<Example>& validate_set2,
+        const std::vector<double>& validate_w2);
+
+    void reset_all();
+    void setup(int index);
+    void reset_trackers();
+
+    std::pair<double, std::tuple<int, int, int, int>> Learner::get_max_empirical_ratio();
 
 private:
-    // bins 
+    std::vector<Bins> bins;
 
     int range_start;
     int num_examples_before_shrink;
 
+    ScoreBoard weak_rules_score;
+    ScoreBoard sum_c;
+    ScoreBoard sum_c_squared;
+    
     double rho_gamma;
     double root_rho_gamma;
     double tree_max_rho_gamma;
@@ -32,12 +55,9 @@ private:
     double default_gamma;
     double min_gamma;
     int num_candid;
-    int pub_total_count;
-
+    int total_count;
     double total_weight;
-
     int max_leaves;
 
     Tree tree;
-
 };
