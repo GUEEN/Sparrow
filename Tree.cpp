@@ -7,7 +7,7 @@ Tree::Tree(const Tree& tree) {
     num_leaves = tree.num_leaves;
     left_child = tree.left_child;
     right_child = tree.right_child;
-    split_feature : tree.split_feature;
+    split_feature = tree.split_feature;
     threshold = tree.threshold;
     leaf_value = tree.leaf_value;
     leaf_depth = tree.leaf_depth;

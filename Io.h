@@ -11,10 +11,13 @@
 class BufReader {
 public:
     BufReader(const std::string& filename);
-    BufReader(const BufReader& reader) = default;
-    BufReader(BufReader&& reader) = default;
+    BufReader(const BufReader&) = default;
+    BufReader(BufReader&&) = default;
+    BufReader& operator=(const BufReader&) = default;
+    BufReader& operator=(BufReader&&) = default;
     ~BufReader();
 
+    Example read_exact();
     std::string read_line();
 
 private:
@@ -24,8 +27,10 @@ private:
 class BufWriter {
 public:
     BufWriter(const std::string& filename);
-    BufWriter(const BufWriter& reader) = default;
-    BufWriter(BufWriter&& reader) = default;
+    BufWriter(const BufWriter&) = default;
+    BufWriter(BufWriter&&) = default;
+    BufWriter& operator=(const BufWriter&) = default;
+    BufWriter& operator=(BufWriter&&) = default;
     ~BufWriter();
 
 private:
@@ -42,15 +47,14 @@ void write_all(const std::string& filename, const std::string& content);
 std::vector<std::string> read_k_lines(BufReader& reader, int k);
 
 template<class TFeature, class TLabel>
-std::vector<LabeledData<TFeature, TLabel>> read_k_labeled_data<TFeature, TLabel>(
+std::vector<LabeledData<TFeature, TLabel>> read_k_labeled_data(
     BufReader& reader,
     int k,
     TFeature missing_val,
     int size,
-    const std::string& positive,
-    ) {
+    const std::string& positive) {
     std::vector<std::string> lines = read_k_lines(reader, k);
-    parse_libsvm(lines, missing_val, size, positive)
+    return parse_libsvm<TFeature, TLabel>(lines, missing_val, size, positive);
 }
 
 std::vector<Example> read_k_labeled_data_from_binary_file(
@@ -58,15 +62,14 @@ std::vector<Example> read_k_labeled_data_from_binary_file(
     int k,
     int data_size);
 
-void write_to_binary_file(BufWriter& writer, const Example& data);
+int write_to_binary_file(BufWriter& writer, const Example& data);
 
 template<class TFeature, class TLabel>
 LabeledData<TFeature, TLabel> parse_libsvm_one_line(
     const std::string& raw_string,
     TFeature missing_val,
     int size,
-    const std::string& positive,
-    ) {
+    const std::string& positive) {
 
     std::istringstream iss(raw_string);
     std::vector<std::string> numbers(std::istream_iterator<std::string>{iss},
@@ -83,7 +86,7 @@ LabeledData<TFeature, TLabel> parse_libsvm_one_line(
             tokens.push_back(token);
         }
 
-        double value = std::stod(tokens[1]); // TODO: chech the NAN value cases
+        double value = std::stod(tokens[1]); // TODO: check the NAN value cases
         int index = std::stoi(tokens[0]) - 1;
         feature[index] = value;
     }
@@ -96,12 +99,12 @@ std::vector<LabeledData<TFeature, TLabel>> parse_libsvm(
     std::vector<std::string>& raw_strings,
     TFeature missing_val,
     int size,
-    const std::string& positive,
-    ) {
+    const std::string& positive) {
     std::vector<LabeledData<TFeature, TLabel>> data;
     
     for (const std::string& raw_string : raw_strings) {
-        data.push_back(parse_libsvm_one_line(&s, missing_val.clone(), size, positive));
+        data.push_back(parse_libsvm_one_line<TFeature, TLabel>(&s, missing_val.clone(), size, positive));
     }
+    return data;
 }
 

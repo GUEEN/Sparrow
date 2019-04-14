@@ -14,6 +14,21 @@ std::string BufReader::read_line() {
     return line;
 }
 
+// read an example from a binary file
+Example BufReader::read_exact() {
+    //TODO
+    int label = 0;
+    std::vector<int> feature;
+    
+    return Example(feature, label);
+}
+
+std::vector<Example> read_k_labeled_data_from_binary_file(
+    BufReader& reader, int k, int data_size) {
+    std::vector<Example> data;
+    // TODO
+    return data;
+}
 
 BufWriter::BufWriter(const std::string& filename) {
     f.open(filename);
@@ -61,4 +76,21 @@ std::vector<std::string> read_k_lines(BufReader& reader, int k) {
     return ret;
 }
 
+std::vector<Example> read_k_labeled_data_from_binary_file(
+    BufReader& reader, int k, int data_size) {
+
+    std::vector<Example> data;
+
+    for (int i = 0; i < k; ++i) {
+        data.push_back(reader.read_exact());
+    }
+
+    return data;
+}
+
+int write_to_binary_file(BufWriter& writer, const Example& data) {
+    int total_bytes = 0;
+    // TODO
+    return total_bytes;
+}
 
