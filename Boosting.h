@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Learner.h"
+#include "Model.h"
 
 class Boosting {
 public:
@@ -9,16 +10,22 @@ public:
         int max_leaves,
         double min_gamma,
         int max_trials_before_shrink,
-        //bins,
+        const std::vector<Bins>& bins,
         int max_sample_size,
         double default_gamma);
 
-    void train();
+    void training(
+        std::vector<Example> validate_set1,
+        std::vector<Example> validate_set2);
 
 private:
 
     int num_iterations;
+
+    BufferLoader training_loader;
+    Model model;
     Learner learner;
 
     double sum_gamma;
+    double remote_sum_gamma;
 };
