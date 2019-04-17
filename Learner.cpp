@@ -1,5 +1,6 @@
 #include <algorithm>
 
+#include "BufferLoader.h"
 #include "Learner.h"
 
 //const RULES : [[f32; 2]; NUM_RULES] = [[1.0, -1.0], [-1.0, 1.0]];
@@ -128,6 +129,8 @@ bool Learner::is_gamma_significant() const {
     return tree_max_rho_gamma >= min_gamma || root_rho_gamma >= min_gamma;
 }
 
+
+
 std::pair<Tree, double> get_base_tree(int max_sample_size, BufferLoader& data_loader) {
     int sample_size = max_sample_size;
     int n_pos = 0;
@@ -149,13 +152,13 @@ std::pair<Tree, double> get_base_tree(int max_sample_size, BufferLoader& data_lo
         //}
         //).reduce(|| (0, 0), | (a1, a2), (b1, b2) | (a1 + b1, a2 + b2));
 
-        n_pos += num_pos;
-        n_neg += num_neg;
+        //n_pos += num_pos;
+        //n_neg += num_neg;
         sample_size -= data.size();
     }
 
     double gamma = std::fabs((0.5 - (n_pos * 1.0) / (n_pos + n_neg)));
-    double prediction = log(0.5 * ((n_pos * 1.0) / n_neg);
+    double prediction = log(0.5 * ((n_pos * 1.0) / n_neg));
 
     Tree tree(2);
     tree.split(0, 0, 0, prediction, prediction);

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Bins.h"
-#include "Tree.h"
+#include "Utils.h"
 #include "SerialStorage.h"
 
 const double GAMMA_GAP = 0.0;
@@ -22,7 +21,7 @@ public:
     bool is_gamma_significant() const;
 
     Tree Learner::update(
-        const ExampleInSampleSet& data,
+        const std::vector<ExampleInSampleSet>& data,
         const std::vector<Example>& validate_set1,
         const std::vector<double>& validate_w1,
         const std::vector<Example>& validate_set2,
@@ -33,6 +32,7 @@ public:
     void reset_trackers();
 
     std::pair<double, std::tuple<int, int, int, int>> Learner::get_max_empirical_ratio();
+
 
 private:
     std::vector<Bins> bins;

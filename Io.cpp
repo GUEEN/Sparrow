@@ -23,13 +23,6 @@ Example BufReader::read_exact() {
     return Example(feature, label);
 }
 
-std::vector<Example> read_k_labeled_data_from_binary_file(
-    BufReader& reader, int k, int data_size) {
-    std::vector<Example> data;
-    // TODO
-    return data;
-}
-
 BufWriter::BufWriter(const std::string& filename) {
     f.open(filename);
 }

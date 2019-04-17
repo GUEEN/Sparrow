@@ -19,3 +19,6 @@ typedef int TLabel;
 
 typedef LabeledData<RawTFeature, TLabel> RawExample;
 typedef LabeledData<TFeature, TLabel> Example;
+
+typedef std::pair<Example, std::pair<double, int>> ExampleInSampleSet;
+typedef std::pair<Example, std::pair<double, int>> ExampleWithScore;

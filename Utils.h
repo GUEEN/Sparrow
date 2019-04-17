@@ -3,20 +3,10 @@
 #include "SerialStorage.h"
 #include "Tree.h"
 
-typedef std::pair<Example, std::pair<double, int>> ExampleInSampleSet;
-typedef std::pair<Example, std::pair<double, int>> ExampleWithScore;
-typedef std::vector<Tree> Model;
-typedef std::pair<Model, double> ModelScore;
-
 const double DELTA = 1e-6;
 const double SHRINK  = 1.0;
 const double THRESHOLD_FACTOR = 1.0;
 const double ALMOST_ZERO = 1e-8;
-
-enum Signal {
-    START,
-    STOP,
-};
 
 // Boosting related
 inline double get_weight(const Example& data, double score) {
@@ -43,11 +33,6 @@ double get_bound(double sum_c, double sum_c_squared) {
     }
 }
 
-// Computational functions
-bool is_zero(double a) {
-    return get_sign(a) == 0;
-}
-
 inline int get_sign(double a) {
     if (a < -ALMOST_ZERO) {
         return -1;
@@ -55,6 +40,12 @@ inline int get_sign(double a) {
         if (a > ALMOST_ZERO) {
             return 1;
         } else {
-        return 0;
+            return 0;
+        }
     }
 }
+// Computational functions
+bool is_zero(double a) {
+    return get_sign(a) == 0;
+}
+

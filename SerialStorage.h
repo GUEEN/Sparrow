@@ -27,7 +27,6 @@ public:
     );
 
     std::vector<RawExample> read_raw(int batch_size);
-
     std::vector<Example> read(int batch_size);
 
     void try_reset(bool force);

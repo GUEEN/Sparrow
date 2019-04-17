@@ -44,5 +44,8 @@ private:
     std::vector<TFeature> threshold;
     std::vector<double> leaf_value;
     std::vector<int> leaf_depth;
-}
+};
+
+typedef std::vector<Tree> Model;
+typedef std::pair<Model, double> ModelScore;
 
