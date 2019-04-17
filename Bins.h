@@ -1,12 +1,7 @@
+#pragma once
+
 #include <map>
 #include <vector>
-
-#include "SerialStorage.h"
-
-struct Range {
-    int start;
-    int end;
-};
 
 // counter of distinct double values
 struct DistinctValues {
@@ -26,18 +21,9 @@ public:
     std::vector<double>& get_vals();
 
     int get_split_index(double val);
+    int get_size();
 
 private:
     int size;
     std::vector<double> vals;
 };
-
-std::vector<Bins> create_bins(
-    int max_sample_size,
-    int max_bin_size,
-    Range range,
-    SerialStorage& data_loader
-);
-
-
-

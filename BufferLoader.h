@@ -38,6 +38,6 @@ private:
     double ess;
     double min_ess;
     int curr_example;
-}
+};
 
 void update_scores(std::vector<ExampleInSampleSet>& data, Model& model);

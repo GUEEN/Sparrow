@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "Boosting.h"
-#include "Model.h"
 
 
 Boosting::Boosting(
@@ -9,23 +8,24 @@ Boosting::Boosting(
     int max_leaves,
     double min_gamma,
     int max_trials_before_shrink,
+    const std::vector<Bins>& bins,
     BufferLoader training_loader,
     // serial_training_loader: SerialStorage,
-    std::vector<Bins> bins,
     Range range,
     int max_sample_size,
     double default_gamma
-    ) : num_iterations(num_iterations), learner(learner), model(model),    
-    learner(max_leaves, min_gamma, default_gamma, max_trials_before_shrink, bins, range) {
+    ) : num_iterations(num_iterations), 
+    learner(max_leaves, min_gamma, default_gamma, max_trials_before_shrink, bins, range),
+    training_loader(training_loader) {
     //let mut training_loader = training_loader;
 
     // add root node for balancing labels
-    auto base_tree_and_gamma = get_base_tree(max_sample_size, training_loader);
+    ModelScore base_tree_and_gamma = get_base_tree(max_sample_size, training_loader);
 
-    Tree base_tree = base_tree_and_gamma.first;
+    Tree base_tree = base_tree_and_gamma.first[0];
     double gamma = base_tree_and_gamma.second;
    
-    double gamma_squared = gamma ** gamma;
+    double gamma_squared = gamma * gamma;
 
     sum_gamma = gamma_squared;
     remote_sum_gamma = gamma_squared;
@@ -58,9 +58,9 @@ void Boosting::training(
 
     while (is_gamma_significant && (num_iterations <= 0 || model.size() < num_iterations)) {
 
-        auto data = training_loader.get_next_batch_and_update(true, model);
+        std::vector<ExampleInSampleSet> data = training_loader.get_next_batch_and_update(true, model);
         int batch_size = data.size();
-        Tree new_rule = learner.update(data, &validate_set1, &validate_w1, &validate_set2, &validate_w2);
+        Tree new_rule = learner.update(data, validate_set1, validate_w1, validate_set2, validate_w2);
  
         if (new_rule.is_some()) { // check if it is nonempty
             if (validate_set1.size() > 0) {
@@ -85,5 +85,5 @@ void Boosting::training(
     }
 
     std::cout << "Training is finished. Model length: " << model.size() << ". Is gamma significant?" <<
-        learner.is_gamma_signinificant() << ".\n";
+        learner.is_gamma_significant() << ".\n";
 }

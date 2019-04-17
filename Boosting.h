@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Learner.h"
-#include "Model.h"
+#include "BufferLoader.h"
 
 class Boosting {
 public:
@@ -11,6 +11,8 @@ public:
         double min_gamma,
         int max_trials_before_shrink,
         const std::vector<Bins>& bins,
+        BufferLoader training_loader,
+        Range range,
         int max_sample_size,
         double default_gamma);
 

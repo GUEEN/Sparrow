@@ -11,7 +11,7 @@ BufferLoader::BufferLoader(
     bool init_block,
     double min_ess): size(size), batch_size(batch_size), serial_sampling(serial_sampling),
     ess(0.0), min_ess(0.0), curr_example(0)  {
-    num_batch = (size + batch_size - 1) / batch_size;                                                                                                                                             sampling_pm : PerformanceMonitor::new(),
+    num_batch = (size + batch_size - 1) / batch_size;
 }
 
 
@@ -73,17 +73,17 @@ void BufferLoader::update_ess() {
     double sum_weights = 0.0;
     double sum_weights_squared = 0.0;
 
-    for (const ExamleInSampleSet& ex : examples) {
+    for (const ExampleInSampleSet& ex : examples) {
         double w = ex.second.first;
 
         sum_weights += w;
-        sum_weights_sqared += w*w;
+        sum_weights_squared += w*w;
     }
 
-    ess = sum_weights * sum_weights / sum_weight_squared / size;
-    if (ess < min_ess) {
-        force_switch();
-    }
+    ess = sum_weights * sum_weights / sum_weights_squared / size;
+    //if (ess < min_ess) {
+    //    force_switch();
+    //}
 }
 
 /// Update the scores of the examples using `model`
@@ -98,6 +98,6 @@ void update_scores(std::vector<ExampleInSampleSet>& data, Model& model) {
             new_score += model[i].get_leaf_prediction(example.first);
         }
 
-        example.second = (curr_weight * get_weight(example.first, new_score), model_size);
+        example.second = std::make_pair(curr_weight * get_weight(example.first, new_score), model_size);
     }
 }

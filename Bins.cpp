@@ -56,6 +56,10 @@ int Bins::get_split_index(double val) {
     return right;
 }
 
+int Bins::get_size() {
+    return size;
+}
+
 void DistinctValues::update(double val) {
     ++total_vals;
 
@@ -66,40 +70,3 @@ void DistinctValues::update(double val) {
         (p->second)++;
     }
 }
-
-
-std::vector<Bins> create_bins(
-    int max_sample_size,
-    int max_bin_size,
-    Range range,
-    SerialStorage& data_loader) {
-    int start = range.start;
-    int range_size = range.end - start;
-
-    std::vector<DistinctValues> distinct(range_size);
-
-    int remaining_reads = max_sample_size;
-
-    while (remaining_reads > 0) {
-
-    }
-
-    std::vector<Bins> ret;
-    
-    for (const auto& mapper : distinct) {
-        ret.emplace_back(max_bin_size, mapper);
-    }
- 
-    std::cout << "Bins created" << std::endl;
-    //exit(0);
-
-    int total_bins = 0;
-    for (const auto& t : ret) {
-        total_bins += t.len();
-    }    
-    std::cout << "Bins are created. " << ret.size() << 
-        " Features. " << total_bins << " Bins.";
-    return ret;
-}
-
-
