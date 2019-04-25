@@ -74,3 +74,7 @@ void Tree::add_new_node(double leaf_value_, int depth) {
     leaf_value.push_back(leaf_value_);
     leaf_depth.push_back(depth);
 }
+
+int Tree::get_num_leaves() const {
+    return num_leaves;
+}

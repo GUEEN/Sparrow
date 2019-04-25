@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "BufferLoader.h"
 #include "Bins.h"
 
@@ -20,7 +22,7 @@ public:
 
     bool is_gamma_significant() const;
 
-    Tree Learner::update(
+    std::shared_ptr<Tree> Learner::update(
         const std::vector<ExampleInSampleSet>& data,
         const std::vector<Example>& validate_set1,
         const std::vector<double>& validate_w1,

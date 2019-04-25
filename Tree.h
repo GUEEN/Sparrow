@@ -8,7 +8,7 @@ struct TreeNode {
     int tree_index;
     int node_type;
     int feature;
-    //TFeature threshold;
+    TFeature threshold;
     double left_predict;
     double right_predict;
 
@@ -33,6 +33,7 @@ public:
     std::pair<int, double> get_leaf_index_prediction(const Example& data) const;
     double get_leaf_prediction(const Example& data) const;
     void Tree::add_new_node(double leaf_value, int depth);
+    int get_num_leaves() const;
 
 private:
     int max_leaves;

@@ -59,24 +59,23 @@ void Boosting::training(
 
         std::vector<ExampleInSampleSet> data = training_loader.get_next_batch_and_update(true, model);
         int batch_size = data.size();
-        Tree new_rule = learner.update(data, validate_set1, validate_w1, validate_set2, validate_w2);
+        std::shared_ptr<Tree> new_rule = learner.update(data, validate_set1, validate_w1, validate_set2, validate_w2);
  
-       // if (new_rule.is_some())
-        { // check if it is nonempty
+        if (new_rule) { // check if it is nonempty
             if (validate_set1.size() > 0) {
 
                 for (int i = 0; i < validate_set1.size(); ++i) {
                     const Example& example = validate_set1[i];
-                    validate_w1[i] *= get_weight(example, new_rule.get_leaf_prediction(example));
+                    validate_w1[i] *= get_weight(example, new_rule->get_leaf_prediction(example));
                 }
 
                 for (int i = 0; i < validate_set2.size(); ++i) {
                     const Example& example = validate_set2[i];
-                    validate_w2[i] *= get_weight(example, new_rule.get_leaf_prediction(example));
+                    validate_w2[i] *= get_weight(example, new_rule->get_leaf_prediction(example));
                 }
             }
 
-            model.push_back(new_rule);
+            model.push_back(*new_rule);
 
             is_gamma_significant = learner.is_gamma_significant();
             learner.reset_all();
