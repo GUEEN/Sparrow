@@ -58,7 +58,7 @@ std::vector<LabeledData<TFeature, TLabel>> read_k_labeled_data(
 }
 
 std::vector<Example> read_k_labeled_data_from_binary_file(
-    BufReader reader,
+    BufReader& reader,
     int k,
     int data_size);
 
@@ -78,10 +78,12 @@ LabeledData<TFeature, TLabel> parse_libsvm_one_line(
     TLabel label = numbers[0] == positive ? 1 : -1;
 
     std::vector<TFeature> feature(size, missing_val);
+    std::vector<std::string> tokens;
     for (auto it = std::next(numbers.begin()); it != numbers.end(); ++it) {
         std::istringstream token_stream(*it);
 
         tokens.clear();
+        std::string token;
         while (std::getline(token_stream, token, ':')) {
             tokens.push_back(token);
         }
@@ -91,7 +93,7 @@ LabeledData<TFeature, TLabel> parse_libsvm_one_line(
         feature[index] = value;
     }
 
-    return LabeledData(feature, label);
+    return LabeledData<TFeature, TLabel>(feature, label);
 }
 
 template<class TFeature, class TLabel>
@@ -103,8 +105,7 @@ std::vector<LabeledData<TFeature, TLabel>> parse_libsvm(
     std::vector<LabeledData<TFeature, TLabel>> data;
     
     for (const std::string& raw_string : raw_strings) {
-        data.push_back(parse_libsvm_one_line<TFeature, TLabel>(&s, missing_val.clone(), size, positive));
+        data.push_back(parse_libsvm_one_line<TFeature, TLabel>(raw_string, missing_val, size, positive));
     }
     return data;
 }
-

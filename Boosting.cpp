@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "Boosting.h"
-
+#include "Utils.h"
 
 Boosting::Boosting(
     int num_iterations,
@@ -20,9 +20,8 @@ Boosting::Boosting(
     //let mut training_loader = training_loader;
 
     // add root node for balancing labels
-    ModelScore base_tree_and_gamma = get_base_tree(max_sample_size, training_loader);
-
-    Tree base_tree = base_tree_and_gamma.first[0];
+    TreeScore base_tree_and_gamma = get_base_tree(max_sample_size, training_loader);
+    Tree base_tree = base_tree_and_gamma.first;
     double gamma = base_tree_and_gamma.second;
    
     double gamma_squared = gamma * gamma;
@@ -62,7 +61,8 @@ void Boosting::training(
         int batch_size = data.size();
         Tree new_rule = learner.update(data, validate_set1, validate_w1, validate_set2, validate_w2);
  
-        if (new_rule.is_some()) { // check if it is nonempty
+       // if (new_rule.is_some())
+        { // check if it is nonempty
             if (validate_set1.size() > 0) {
 
                 for (int i = 0; i < validate_set1.size(); ++i) {

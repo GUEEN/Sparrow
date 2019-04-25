@@ -7,11 +7,6 @@
 #include "Bins.h"
 #include "LabelledData.h"
 
-struct Range {
-    int start;
-    int end;
-};
-
 class TextToBinHelper;
 
 class SerialStorage {

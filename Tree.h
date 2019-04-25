@@ -47,5 +47,6 @@ private:
 };
 
 typedef std::vector<Tree> Model;
+typedef std::pair<Tree, double> TreeScore;
 typedef std::pair<Model, double> ModelScore;
 

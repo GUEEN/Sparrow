@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Utils.h"
-#include "SerialStorage.h"
+#include "BufferLoader.h"
+#include "Bins.h"
 
 const double GAMMA_GAP = 0.0;
 const int NUM_RULES = 2;
 
-typedef std::vector<std::vector<std::vector<double[NUM_RULES]>>> ScoreBoard;
+typedef std::vector<std::vector<std::vector<std::vector<double>>>> ScoreBoard;
 
 class Learner {
 public:
@@ -61,3 +61,5 @@ private:
 
     Tree tree;
 };
+
+TreeScore get_base_tree(int max_sample_size, BufferLoader& data_loader);

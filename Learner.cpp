@@ -1,5 +1,7 @@
 #include <algorithm>
 
+#include <array>
+
 #include "BufferLoader.h"
 #include "Learner.h"
 
@@ -15,7 +17,8 @@ Learner::Learner(
         ) : max_leaves(max_leaves), min_gamma(min_gamma), default_gamma(default_gamma),
     rho_gamma(default_gamma), root_rho_gamma(default_gamma), range_start(range.start), 
     tree_max_rho_gamma(0.0), num_examples_before_shrink(num_examples_before_shrink),
-    bins(bins), weak_rules_score(bins.size()), sum_c(bins.size()), sum_c_squared(bins.size())   {
+    bins(bins), weak_rules_score(bins.size()), sum_c(bins.size()), sum_c_squared(bins.size()),
+    tree(2 * max_leaves - 1) {
 
     setup(0);
 }
@@ -60,11 +63,13 @@ void Learner::setup(int index) {
             is_cleared = true;
         }
 
+        std::vector<double> zeros(NUM_RULES);
+
         for (int i = 0; i < bins.size(); ++i) {
             int len = bins[i].get_size();
-            weak_rules_score[i].push_back(std::vector<double[NUM_RULES]>(len, { 0.0 } ));
-            sum_c[i].push_back(std::vector<double[NUM_RULES]>(len, { 0.0 }));
-            sum_c_squared[i].push_back(std::vector<double[NUM_RULES]>(len, { 0.0 }));
+            weak_rules_score[i].emplace_back(len, zeros);
+            sum_c[i].emplace_back(len, zeros);
+            sum_c_squared[i].emplace_back(len, zeros);
         }
 
         sum_weights.push_back(0.0);
@@ -130,8 +135,7 @@ bool Learner::is_gamma_significant() const {
 }
 
 
-
-std::pair<Tree, double> get_base_tree(int max_sample_size, BufferLoader& data_loader) {
+TreeScore get_base_tree(int max_sample_size, BufferLoader& data_loader) {
     int sample_size = max_sample_size;
     int n_pos = 0;
     int n_neg = 0;
