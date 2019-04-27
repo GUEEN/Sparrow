@@ -95,6 +95,105 @@ Config a1a_config = {
     false
 };
 
+void validate(
+    std::string models_table,
+    std::string testing_filename,
+    int num_examples,
+    int num_features,
+    int batch_size,
+    std::string positive,
+    bool incremental_testing
+    ) {
+    // TODO: make eval_funcs a parameter
+    //let eval_funcs = vec![EvalFunc::AdaBoostLoss, EvalFunc::AUPRC, EvalFunc::AUROC];
+    //let bins = serde_json::from_str(&read_all(&"models/bins.json".to_string()))
+    //    .expect(&format!("Cannot parse the bins in `{}`", "models/bins.json"));
+
+    // recover bins from file 'models/bins.json'
+    std::vector<Bins> bins;
+
+    BufReader models_list = create_bufreader(models_table);
+
+    SerialStorage data = SerialStorage(
+        testing_filename,
+        num_examples,
+        num_features,
+        false,
+        positive,
+        bins,
+        { 0, num_features }
+        );
+
+    std::vector<double> scores(num_examples);
+    std::vector<TLabel> labels(num_examples);
+
+    int last_model_length = 0;
+
+    for (;;) {
+        //if models_list.read_line(&mut line).is_err() || line.trim() == "" {
+        //    break;
+        //}
+        std::string line;
+        if (models_list.read_line(line) == false) {
+            break;
+        }
+
+        //let filepath = line.to_string().trim().to_string();
+        std::string filepath = line;
+
+        //// validate model
+        //let(ts, _, model) : (f32, usize, Model) =
+        //    serde_json::from_str(&read_all(&filepath))
+        //    .expect(&format!("Cannot parse the model in `{}`", filepath));
+
+        // recover bins and model from filepath
+        Model model;
+
+        int index = 0;
+        while (index < num_examples) {
+            std::vector<Example> batch = data.read(batch_size);
+            for (int k = last_model_length; k < model.size(); ++k) {
+                Tree tree = model[k];
+                for (int i = 0; i < batch.size(); ++i) {
+
+                    Example& example = batch[i];
+                    scores[index + i] += tree.get_leaf_prediction(example);
+                }
+            }
+            for (int i = 0; i < batch.size(); ++i) {
+
+                Example& example = batch[i];
+                labels[index + i] += example.label;
+            }
+            index += batch.size();
+        }
+
+        // output
+        std::string outputpath = filepath + "_scores";
+
+        std::vector<std::string> preds;
+        for (double score : scores) {
+            preds.push_back(std::to_string(score));
+        }
+
+        std::string content = preds[0];
+        for (int i = 1; i < preds.size(); ++i) {
+            content = content + "\n" + preds[i];
+        }
+
+        write_all(outputpath, content);
+        std::cout << "Processed " << filepath << std::endl;
+
+        // Reset scores if necessary
+        if (incremental_testing) {
+            last_model_length = model.size();
+        } else {
+            for (int i = 0; i < scores.size(); ++i) {
+                scores[i] = 0.0;
+            }
+        }
+    }
+}
 
 void training(const Config& config) {
 
