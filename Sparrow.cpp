@@ -1,10 +1,11 @@
 // Sparrow.cpp : Defines the entry point for the console application.
 //
 
-#include "Matrix.h"
-#include "Reader.h"
+#include "Boosting.h"
+#include "SerialStorage.h"
 
 #include <string>
+#include <iostream>
 
 struct Config {
     /// File path to the training data
@@ -14,7 +15,7 @@ struct Config {
     /// Number of features
     int num_features;
     /// Range of the features for creating weak rules
-    //  Range<int> range 
+    Range range;
     /// Label for positive examples
     std::string positive;
     /// File path to the testing data
@@ -68,6 +69,7 @@ Config a1a_config = {
     "C:\\DATA\\LIBSVM\\a1a",
     30956,
     125,
+    {0, 125},
     "1",
     "C:\\DATA\\LIBSVM\\a1a.t",
     30956,
@@ -94,16 +96,77 @@ Config a1a_config = {
 };
 
 
+void training(const Config& config) {
+
+    std::cout << "Crating bins." << std::endl;
+
+    SerialStorage serial_training_loader(
+        config.training_filename,
+        config.num_examples,
+        config.num_features,
+        true,
+        config.positive,
+        std::vector<Bins>(),
+        config.range
+        );
+
+    std::vector<Bins> bins = create_bins(
+        config.max_sample_size, config.max_bin_size, config.range, serial_training_loader);
+    //{
+    //    let mut file_buffer = create_bufwriter(&"models/bins.json".to_string());
+    //    let json = serde_json::to_string(&bins).expect("Bins cannot be serialized.");
+    //    file_buffer.write(json.as_ref()).unwrap();
+    //}
+
+    std::vector<Example> validation_set1;
+    std::vector<Example> validation_set2;
+
+    std::cout << "Starting the buffered loader" << std::endl;
+    BufferLoader buffer_loader(
+        config.buffer_size,
+        config.batch_size,
+        config.serial_sampling,
+        true,
+        config.min_ess);
+
+    std::cout << "Starting the booster" << std::endl;
+    Boosting booster(
+        config.num_iterations,
+        config.max_leaves,
+        config.min_gamma,
+        config.max_trials_before_shrink,
+        bins,
+        buffer_loader,
+        // serial_training_loader,
+        config.range,
+        config.max_sample_size,
+        config.default_gamma
+        );
+
+    booster.training(validation_set1, validation_set2);
+}
+
+
+void testing(const Config& config) {
+    // Load configurations
+  /*  validate(
+        config.models_table_filename.clone(),
+        config.testing_filename.clone(),
+        config.num_testing_examples,
+        config.num_features,
+        config.batch_size,
+        config.positive.clone(),
+        config.incremental_testing,
+        config.testing_scores_only,
+        );*/
+}
+
+
+
 int main() {
-    Matrix X(32161, 123);
-    //Matrix X(60000, 8);
-    std::vector<int> y;
 
-    std::string path = "C:\\DATA\\LIBSVM\\a9a";
-    //std::string path = "C:\\DATA\\LIBSVM\\cod-rna";
+    training(a1a_config);
 
-    ReadTrainData(X, y, path);
 
     return 0;
 }
-
