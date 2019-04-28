@@ -166,16 +166,14 @@ std::vector<Bins> create_bins(
 
     while (remaining_reads > 0) {
 
-        //let data = data_loader.read_raw(1000);
-        //data.iter().for_each(| example | {
-        //    let feature = &(example.feature);
-        //    distinct.iter_mut()
-        //        .enumerate()
-        //        .for_each(| (idx, mapper) | {
-        //        mapper.update(feature[start + idx] as f32);
-        //    });
-        //});
-        //remaining_reads -= data.len();
+        std::vector<RawExample> data = data_loader.read_raw(1000);
+        for (int i = 0; i < data.size(); ++i) {
+            std::vector<RawTFeature>& feature = data[i].feature;
+            for (int index = 0; index < distinct.size(); ++index) {
+                distinct[index].update(feature[start + index]);
+            }
+        }
+        remaining_reads -= data.size();
     }
 
     std::vector<Bins> ret;

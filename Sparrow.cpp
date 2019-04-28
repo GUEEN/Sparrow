@@ -197,7 +197,7 @@ void validate(
 
 void training(const Config& config) {
 
-    std::cout << "Crating bins." << std::endl;
+    std::cout << "Creating bins" << std::endl;
 
     SerialStorage serial_training_loader(
         config.training_filename,
