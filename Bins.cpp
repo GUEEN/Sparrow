@@ -9,8 +9,6 @@ Bins::Bins(int size, const DistinctValues& distinct_vals) {
     double last_val = 0.0;
     int counter = 0;
 
-    std::vector<double> vals;
-
     for (auto p: distinct_vals.distinct) {
 
         double k = p.first;
@@ -23,7 +21,7 @@ Bins::Bins(int size, const DistinctValues& distinct_vals) {
         counter += v;
         last_val = k;
     }
-    size = vals.size();
+    this->size = vals.size();
 }
 
 /// Return the number of thresholds. 

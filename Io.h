@@ -18,7 +18,7 @@ public:
     ~BufReader();
 
     Example read_exact();
-    bool read_line(std::string& line);
+    void read_line(std::string& line);
 
 private:
     std::fstream f;

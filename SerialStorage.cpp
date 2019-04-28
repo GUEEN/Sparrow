@@ -24,7 +24,8 @@ std::vector<RawExample> SerialStorage::read_raw(int batch_size) {
     int true_batch_size = tail - head;
 
     RawTFeature missing_value(0.0);
-    auto batch = read_k_labeled_data<RawTFeature, TLabel>(reader, true_batch_size, missing_value, feature_size, positive);
+    std::vector<RawExample> batch = read_k_labeled_data<RawTFeature, TLabel>(
+        reader, true_batch_size, missing_value, feature_size, positive);
 
     index = tail;
     try_reset(false /* not forcing */);
@@ -167,6 +168,9 @@ std::vector<Bins> create_bins(
     while (remaining_reads > 0) {
 
         std::vector<RawExample> data = data_loader.read_raw(1000);
+        if (data.size() == 0) {
+            break;
+        }
         for (int i = 0; i < data.size(); ++i) {
             std::vector<RawTFeature>& feature = data[i].feature;
             for (int index = 0; index < distinct.size(); ++index) {
@@ -182,7 +186,6 @@ std::vector<Bins> create_bins(
         ret.emplace_back(max_bin_size, mapper);
     }
 
-    std::cout << "Bins created" << std::endl;
     //exit(0);
 
     int total_bins = 0;

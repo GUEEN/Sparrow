@@ -8,8 +8,8 @@ BufReader::~BufReader() {
     f.close();
 }
 
-bool BufReader::read_line(std::string& line) {
-    return static_cast<bool>(std::getline(f, line));
+void BufReader::read_line(std::string& line) {
+    std::getline(f, line);
 }
 
 // read an example from a binary file
@@ -59,10 +59,17 @@ void write_all(const std::string& filename, const std::string& content) {
 }
 
 std::vector<std::string> read_k_lines(BufReader& reader, int k) {
-    std::vector<std::string> ret(k);
+    std::vector<std::string> ret;
+    ret.reserve(k);
 
     for (int i = 0; i < k; ++i) {
-        reader.read_line(ret[i]);
+        std::string line;
+        reader.read_line(line);
+        if (line != "") {
+            ret.push_back(line);
+        } else {
+            return ret;
+        }
     }
     return ret;
 }

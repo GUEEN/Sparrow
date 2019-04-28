@@ -70,7 +70,7 @@ Config a1a_config = {
     30956,
     125,
     {0, 125},
-    "1",
+    "+1",
     "C:\\DATA\\LIBSVM\\a1a.t",
     30956,
     20000,
@@ -134,7 +134,8 @@ void validate(
         //    break;
         //}
         std::string line;
-        if (models_list.read_line(line) == false) {
+        models_list.read_line(line);
+        if (line == "") {
             break;
         }
 
@@ -242,6 +243,8 @@ void training(const Config& config) {
         config.default_gamma
         );
 
+
+    std::cout << "Start training" << std::endl;
     booster.training(validation_set1, validation_set2);
 }
 

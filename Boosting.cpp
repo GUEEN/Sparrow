@@ -17,7 +17,6 @@ Boosting::Boosting(
     ) : num_iterations(num_iterations), 
     learner(max_leaves, min_gamma, default_gamma, max_trials_before_shrink, bins, range),
     training_loader(training_loader) {
-    //let mut training_loader = training_loader;
 
     // add root node for balancing labels
     TreeScore base_tree_and_gamma = get_base_tree(max_sample_size, training_loader);
