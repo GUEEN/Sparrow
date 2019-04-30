@@ -12,7 +12,7 @@ BitMap::BitMap(int size, bool all_full) {
 // -1 corresponds to None
 int BitMap::get_first_free() {
     int i = 0;
-    int j = 0;
+    int64_t j = 0;
     while ((i * 32) < size) {
         int64_t k = is_free[i];
 
@@ -106,7 +106,7 @@ int DiskBuffer::write(const std::vector<char>& data) {
     int offset = position * block_size;
 
     file.seekg(offset);
-    file.write(data.data, data.size());
+    file.write(data.data(), data.size());
     file.flush();
     
     return position;
@@ -115,13 +115,13 @@ int DiskBuffer::write(const std::vector<char>& data) {
 std::vector<char> DiskBuffer::read(int position) {
     assert(position < size);
 
-    int offset = position * block_size;
+    int64_t offset = position * block_size;
 
     file.seekg(offset);
 
     std::vector<char> block_buffer(0, block_size);
 
-    file.read(block_buffer.data, block_size);
+    file.read(block_buffer.data(), block_size);
 
     position = file.tellg();
 

@@ -34,7 +34,7 @@ std::vector<double>& Bins::get_vals() {
     return vals;
 }
 
-int Bins::get_split_index(double val) {
+int Bins::get_split_index(double val) const {
 
     if (vals.size() == 0 || val <= vals[0]) {
         return 0;
@@ -54,7 +54,7 @@ int Bins::get_split_index(double val) {
     return right;
 }
 
-int Bins::get_size() {
+int Bins::get_size() const {
     return size;
 }
 
