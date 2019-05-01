@@ -1,10 +1,10 @@
 #pragma once
 
-#include "DiskBuffer.h"
-#include "Bins.h"
-
 #include <vector>
 #include <string>
+
+#include "DiskBuffer.h"
+#include "Bins.h"
 
 class StratifiedStorage {
 public:
@@ -12,6 +12,7 @@ public:
     StratifiedStorage(
         int num_examples,
         int feature_size,
+
         const std::string& positive,
         int num_examples_per_block,
         const std::string& disk_buffer_filename

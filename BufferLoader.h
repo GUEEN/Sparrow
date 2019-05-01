@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Tree.h"
-
 #include <vector>
+
+#include "Tree.h"
 
 class BufferLoader {
 public:

@@ -1,9 +1,9 @@
 #pragma once
 
+#include <vector>
+
 #include "Learner.h"
 #include "BufferLoader.h"
-
-#include <vector>
 
 class Boosting {
 public:

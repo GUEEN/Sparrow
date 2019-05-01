@@ -1,8 +1,8 @@
 #pragma once
 
-#include "SerialStorage.h"
-
 #include <vector>
+
+#include "SerialStorage.h"
 
 const double DELTA = 1e-6;
 const double SHRINK  = 1.0;

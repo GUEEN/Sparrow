@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Io.h"
-#include "Bins.h"
-#include "LabeledData.h"
-
 #include <string>
 #include <memory>
 #include <tuple>
 #include <vector>
+
+#include "Io.h"
+#include "Bins.h"
+#include "LabeledData.h"
 
 class TextToBinHelper;
 

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "LabeledData.h"
-
 #include <fstream>
 #include <string>
 #include <vector>
 #include <sstream>
 #include <iterator>
+
+#include "LabeledData.h"
 
 template<class TFeature, class TLabel>
 LabeledData<TFeature, TLabel> parse_libsvm_one_line(

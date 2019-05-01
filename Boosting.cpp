@@ -1,7 +1,8 @@
 #include "Boosting.h"
-#include "Utils.h"
 
 #include <iostream>
+
+#include "Utils.h"
 
 Boosting::Boosting(
     int num_iterations,

@@ -1,11 +1,11 @@
 // Sparrow.cpp : Defines the entry point for the console application.
 //
 
-#include "Boosting.h"
-#include "SerialStorage.h"
-
 #include <string>
 #include <iostream>
+
+#include "Boosting.h"
+#include "SerialStorage.h"
 
 struct Config {
     /// File path to the training data
