@@ -69,7 +69,7 @@ void Tree::add_new_node(double leaf_value_, int depth) {
     ++num_leaves;
     left_child.push_back(0);
     right_child.push_back(0);
-    //split_feature.push_back(null);
+    split_feature.push_back(-1); // -1 means none
     threshold.push_back(0);
     leaf_value.push_back(leaf_value_);
     leaf_depth.push_back(depth);

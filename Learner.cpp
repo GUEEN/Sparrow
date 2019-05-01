@@ -291,8 +291,7 @@ std::shared_ptr<Tree> Learner::update(
     std::shared_ptr<TreeNode> tree_node;
     if (valid_tree_node || total_count <= num_examples_before_shrink) {
         tree_node = valid_tree_node;
-    }
-    else {
+    } else {
         // cannot find a valid weak rule, need to fallback and shrink gamma
         std::pair<double, std::tuple<int, int, int, int>> emp_ratio = get_max_empirical_ratio();
 
@@ -443,8 +442,18 @@ TreeScore get_base_tree(int max_sample_size, BufferLoader& data_loader) {
     int n_neg = 0;
 
     while (sample_size > 0) {
-        auto data = data_loader.get_next_batch(true);
+        std::vector<ExampleInSampleSet> data = data_loader.get_next_batch(true);
         
+        int num_pos = 0;
+        int num_neg = 0;
+
+        for (int i = 0; i < data.size(); ++i) {
+            if (data[i].first.label > 0) {
+                ++num_pos;
+            } else {
+                ++num_neg;
+            }
+        }
         //let(num_pos, num_neg) =
         //    data.par_iter().fold(
         //        || (0, 0),
@@ -457,9 +466,8 @@ TreeScore get_base_tree(int max_sample_size, BufferLoader& data_loader) {
         //    }
         //}
         //).reduce(|| (0, 0), | (a1, a2), (b1, b2) | (a1 + b1, a2 + b2));
-
-        //n_pos += num_pos;
-        //n_neg += num_neg;
+        n_pos += num_pos;
+        n_neg += num_neg;
         sample_size -= data.size();
     }
 
