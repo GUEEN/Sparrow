@@ -55,7 +55,7 @@ std::vector<LabeledData<TFeature, TLabel>> parse_libsvm(
 
 class BufReader {
 public:
-    BufReader(const std::string& filename);
+    explicit BufReader(const std::string& filename);
     BufReader(const BufReader&) = default;
     BufReader(BufReader&&) = default;
     BufReader& operator=(const BufReader&) = default;
@@ -71,7 +71,7 @@ private:
 
 class BufWriter {
 public:
-    BufWriter(const std::string& filename);
+    explicit BufWriter(const std::string& filename);
     BufWriter(const BufWriter&) = default;
     BufWriter(BufWriter&&) = default;
     BufWriter& operator=(const BufWriter&) = default;

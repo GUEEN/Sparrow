@@ -2,6 +2,8 @@
 
 #include "Tree.h"
 
+#include <vector>
+
 class BufferLoader {
 public:
     BufferLoader(

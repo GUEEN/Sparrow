@@ -3,6 +3,7 @@
 #include "LabelledData.h"
 
 #include <vector>
+#include <utility>
 
 struct TreeNode {
     int tree_index;
@@ -23,7 +24,7 @@ struct TreeNode {
 
 class Tree {
 public:
-    Tree(int max_leaves);
+    explicit Tree(int max_leaves);
     Tree(const Tree& tree);
     void release();
 

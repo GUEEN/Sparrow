@@ -6,6 +6,7 @@
 #include <memory>
 #include <utility>
 #include <vector>
+#include <tuple>
 
 const double GAMMA_GAP = 0.0;
 const int NUM_RULES = 2;

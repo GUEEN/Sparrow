@@ -238,8 +238,8 @@ std::shared_ptr<Tree> Learner::update(
                 }
             }
 
-            std::vector<std::vector<double>> accum_left(NUM_RULES, std::vector<double>(0.0, 3));
-            std::vector<std::vector<double>> accum_right(NUM_RULES, std::vector<double>(0.0, 3));
+            std::vector<std::vector<double>> accum_left(NUM_RULES, std::vector<double>(3));
+            std::vector<std::vector<double>> accum_right(NUM_RULES, std::vector<double>(3));
 
             // Accumulate sum of the stats of all examples that go to the right child
             for (int j = 0; j < bin.len(); ++j) { // Split value
