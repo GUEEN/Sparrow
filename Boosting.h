@@ -3,6 +3,8 @@
 #include "Learner.h"
 #include "BufferLoader.h"
 
+#include <vector>
+
 class Boosting {
 public:
     Boosting(

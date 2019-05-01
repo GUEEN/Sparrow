@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <fstream>
-
+#include <string>
 
 struct BitMap {
     int size;
