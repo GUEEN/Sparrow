@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "Utils.h"
 
 double get_weight(const Example& data, double score) {

@@ -1,3 +1,4 @@
+#include <cmath>
 #include <algorithm>
 #include <unordered_map>
 
@@ -271,7 +272,7 @@ std::shared_ptr<Tree> Learner::update(
                     int count = counts[index];
                     double bound = get_bound(_sum_c_, _sum_c_squared_);
                     if (_sum_c_ > bound) {
-                        double base_pred = 0.5 * std::log((0.5 + rho_gamma + GAMMA_GAP) / (0.5 - rho_gamma - GAMMA_GAP));
+                        double base_pred = 0.5 * log((0.5 + rho_gamma + GAMMA_GAP) / (0.5 - rho_gamma - GAMMA_GAP));
                         valid_weak_rule.reset(new TreeNode({ index, rule_idx, i + range_start, j,
                             base_pred * RULES[rule_idx][0], base_pred * RULES[rule_idx][1],
                             rho_gamma, _weak_rules_score_, _sum_c_, _sum_c_squared_, bound, count, false }));
@@ -305,7 +306,7 @@ std::shared_ptr<Tree> Learner::update(
         double bounded_empirical_gamma = std::min(0.25, empirical_gamma);
         // Fallback prepare
 
-        double base_pred = std::log(0.5 * ((0.5 + bounded_empirical_gamma) / (0.5 - bounded_empirical_gamma)));
+        double base_pred = log(0.5 * ((0.5 + bounded_empirical_gamma) / (0.5 - bounded_empirical_gamma)));
 
         int count = counts[index];
         double raw_martingale = weak_rules_score[i][index][j][k];

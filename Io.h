@@ -8,6 +8,20 @@
 
 #include "LabelledData.h"
 
+template<class TFeature, class TLabel>
+std::vector<LabeledData<TFeature, TLabel>> parse_libsvm(
+    std::vector<std::string>& raw_strings,
+    TFeature missing_val,
+    int size,
+    const std::string& positive) {
+    std::vector<LabeledData<TFeature, TLabel>> data;
+
+    for (const std::string& raw_string : raw_strings) {
+        data.push_back(parse_libsvm_one_line<TFeature, TLabel>(raw_string, missing_val, size, positive));
+    }
+    return data;
+}
+
 class BufReader {
 public:
     BufReader(const std::string& filename);
@@ -94,18 +108,4 @@ LabeledData<TFeature, TLabel> parse_libsvm_one_line(
     }
 
     return LabeledData<TFeature, TLabel>(feature, label);
-}
-
-template<class TFeature, class TLabel>
-std::vector<LabeledData<TFeature, TLabel>> parse_libsvm(
-    std::vector<std::string>& raw_strings,
-    TFeature missing_val,
-    int size,
-    const std::string& positive) {
-    std::vector<LabeledData<TFeature, TLabel>> data;
-    
-    for (const std::string& raw_string : raw_strings) {
-        data.push_back(parse_libsvm_one_line<TFeature, TLabel>(raw_string, missing_val, size, positive));
-    }
-    return data;
 }

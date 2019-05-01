@@ -22,7 +22,7 @@ public:
 
     bool is_gamma_significant() const;
 
-    std::shared_ptr<Tree> Learner::update(
+    std::shared_ptr<Tree> update(
         const std::vector<ExampleInSampleSet>& data,
         const std::vector<Example>& validate_set1,
         const std::vector<double>& validate_w1,
@@ -33,8 +33,7 @@ public:
     void setup(int index);
     void reset_trackers();
 
-    std::pair<double, std::tuple<int, int, int, int>> Learner::get_max_empirical_ratio();
-
+    std::pair<double, std::tuple<int, int, int, int>> get_max_empirical_ratio();
 
 private:
     std::vector<Bins> bins;

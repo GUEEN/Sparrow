@@ -32,7 +32,7 @@ public:
 
     std::pair<int, double> get_leaf_index_prediction(const Example& data) const;
     double get_leaf_prediction(const Example& data) const;
-    void Tree::add_new_node(double leaf_value, int depth);
+    void add_new_node(double leaf_value, int depth);
     int get_num_leaves() const;
 
 private:
