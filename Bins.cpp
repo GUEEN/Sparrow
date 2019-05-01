@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include "Bins.h"
+
+#include <iostream>
 
 Bins::Bins(int size, const DistinctValues& distinct_vals) {
 

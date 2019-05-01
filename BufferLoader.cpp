@@ -1,9 +1,8 @@
-#include <cassert>
-#include <algorithm>
-
 #include "BufferLoader.h"
 #include "Utils.h"
 
+#include <cassert>
+#include <algorithm>
 
 BufferLoader::BufferLoader(
     int size,

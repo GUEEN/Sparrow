@@ -1,10 +1,10 @@
-#include <cmath>
-#include <algorithm>
-#include <unordered_map>
-
 #include "BufferLoader.h"
 #include "Learner.h"
 #include "Utils.h"
+
+#include <cmath>
+#include <algorithm>
+#include <unordered_map>
 
 const double RULES[2][NUM_RULES] = { {1.0, -1.0}, {-1.0, 1.0} };
 

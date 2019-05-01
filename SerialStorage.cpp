@@ -1,8 +1,8 @@
+#include "SerialStorage.h"
+
 #include <cassert>
 #include <iostream>
 #include <algorithm>
-
-#include "SerialStorage.h"
 
 SerialStorage::SerialStorage(
     const std::string& filename,

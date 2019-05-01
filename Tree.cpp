@@ -1,6 +1,6 @@
-#include <utility>
-
 #include "Tree.h"
+
+#include <utility>
 
 Tree::Tree(const Tree& tree) {
     max_leaves = tree.max_leaves;

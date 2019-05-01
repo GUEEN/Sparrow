@@ -1,7 +1,7 @@
-#include <iostream>
-
 #include "StratifiedStorage.h"
 #include "SerialStorage.h"
+
+#include <iostream>
 
 StratifiedStorage::StratifiedStorage(
         int num_examples,
