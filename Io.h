@@ -9,6 +9,37 @@
 #include "LabelledData.h"
 
 template<class TFeature, class TLabel>
+LabeledData<TFeature, TLabel> parse_libsvm_one_line(
+    const std::string& raw_string,
+    TFeature missing_val,
+    int size,
+    const std::string& positive) {
+
+    std::istringstream iss(raw_string);
+    std::vector<std::string> numbers(std::istream_iterator<std::string>{iss},
+        std::istream_iterator<std::string>());
+
+    TLabel label = numbers[0] == positive ? 1 : -1;
+
+    std::vector<TFeature> feature(size, missing_val);
+    std::vector<std::string> tokens;
+    for (auto it = std::next(numbers.begin()); it != numbers.end(); ++it) {
+        std::istringstream token_stream(*it);
+
+        tokens.clear();
+        std::string token;
+        while (std::getline(token_stream, token, ':')) {
+            tokens.push_back(token);
+        }
+
+        double value = std::stod(tokens[1]); // TODO: check the NAN value cases
+        int index = std::stoi(tokens[0]) - 1;
+        feature[index] = value;
+    }
+    return LabeledData<TFeature, TLabel>(feature, label);
+}
+
+template<class TFeature, class TLabel>
 std::vector<LabeledData<TFeature, TLabel>> parse_libsvm(
     std::vector<std::string>& raw_strings,
     TFeature missing_val,
@@ -77,35 +108,3 @@ std::vector<Example> read_k_labeled_data_from_binary_file(
     int data_size);
 
 int write_to_binary_file(BufWriter& writer, const Example& data);
-
-template<class TFeature, class TLabel>
-LabeledData<TFeature, TLabel> parse_libsvm_one_line(
-    const std::string& raw_string,
-    TFeature missing_val,
-    int size,
-    const std::string& positive) {
-
-    std::istringstream iss(raw_string);
-    std::vector<std::string> numbers(std::istream_iterator<std::string>{iss},
-        std::istream_iterator<std::string>());
-
-    TLabel label = numbers[0] == positive ? 1 : -1;
-
-    std::vector<TFeature> feature(size, missing_val);
-    std::vector<std::string> tokens;
-    for (auto it = std::next(numbers.begin()); it != numbers.end(); ++it) {
-        std::istringstream token_stream(*it);
-
-        tokens.clear();
-        std::string token;
-        while (std::getline(token_stream, token, ':')) {
-            tokens.push_back(token);
-        }
-
-        double value = std::stod(tokens[1]); // TODO: check the NAN value cases
-        int index = std::stoi(tokens[0]) - 1;
-        feature[index] = value;
-    }
-
-    return LabeledData<TFeature, TLabel>(feature, label);
-}
