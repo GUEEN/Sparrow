@@ -1,6 +1,6 @@
 #pragma once
 
-#include "LabelledData.h"
+#include "LabeledData.h"
 
 #include <vector>
 #include <utility>

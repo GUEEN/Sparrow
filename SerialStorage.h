@@ -2,7 +2,7 @@
 
 #include "Io.h"
 #include "Bins.h"
-#include "LabelledData.h"
+#include "LabeledData.h"
 
 #include <string>
 #include <memory>
