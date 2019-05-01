@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <utility>
 
 // Training example. It consists of two fields: `feature` and `label`.
 template<class TFeature, class TLabel>

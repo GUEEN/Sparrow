@@ -3,6 +3,8 @@
 #include "DiskBuffer.h"
 #include "Bins.h"
 
+#include <vector>
+#include <string>
 
 class StratifiedStorage {
 public:

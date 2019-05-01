@@ -1,9 +1,11 @@
 #pragma once
 
-#include <memory>
-
 #include "BufferLoader.h"
 #include "Bins.h"
+
+#include <memory>
+#include <utility>
+#include <vector>
 
 const double GAMMA_GAP = 0.0;
 const int NUM_RULES = 2;

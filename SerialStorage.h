@@ -1,11 +1,13 @@
 #pragma once
 
-#include <string>
-#include <memory>
-
 #include "Io.h"
 #include "Bins.h"
 #include "LabelledData.h"
+
+#include <string>
+#include <memory>
+#include <tuple>
+#include <vector>
 
 class TextToBinHelper;
 
@@ -54,7 +56,7 @@ private:
 
 class TextToBinHelper {
 public:
-    TextToBinHelper(const std::string& original_filename);
+    explicit TextToBinHelper(const std::string& original_filename);
     void append_data(const Example& data);
 
     std::tuple<std::string, int, int> get_content() const;

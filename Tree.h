@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
-
 #include "LabelledData.h"
+
+#include <vector>
 
 struct TreeNode {
     int tree_index;
