@@ -3,19 +3,28 @@
 #include <vector>
 #include <string>
 
-#include "DiskBuffer.h"
 #include "Bins.h"
+#include "Channels.h"
+#include "DiskBuffer.h"
+#include "LabeledData.h"
+#include "Tree.h"
+#include "Utils.h"
 
 class StratifiedStorage {
 public:
-
     StratifiedStorage(
         int num_examples,
         int feature_size,
-
         const std::string& positive,
         int num_examples_per_block,
-        const std::string& disk_buffer_filename
+        const std::string& disk_buffer_filename,
+        int num_assigners,
+        int num_samplers,
+        Sender<std::pair<ExampleWithScore, int>>& sampled_examples,
+        Receiver<Signal>& sampling_signal,
+        Receiver<Model>& models,
+        int channel_size,
+        bool debug_mode
     );
 
     void init_stratified_from_file(
@@ -29,5 +38,4 @@ public:
 private:
 
     std::string positive;
-
 };

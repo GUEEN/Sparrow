@@ -1,16 +1,105 @@
 #include "StratifiedStorage.h"
 
+#include <cmath>
 #include <iostream>
+#include <map>
+#include <thread>
 
+#include "Channels.h"
 #include "SerialStorage.h"
+#include "Strata.h"
+#include "Utils.h"
+
+using std::thread;
+using std::pair;
+
+// !!!! temporary
+typedef const std::map<int, int> WeightTableRead;
+
+void assigner_thread(
+    Receiver<ExampleWithScore>& updated_examples_r,
+    Strata& strata,
+    Sender<pair<int, pair<int, double>>>& stats_update_s) {
+    while (true) {
+        auto ret = updated_examples_r.try_recv();
+        if (!ret.first) break;
+
+        const ExampleWithScore& ret_value = ret.second;
+        const Example& example = ret_value.first;
+        double score = ret_value.second.first;
+        int version = ret_value.second.second;
+
+        // !!! stuff from oberon.  Rust code was: let index = "weight.log2() as i8".
+        float weight = get_weight(example, score);
+        int index;
+        frexp(weight, &index);
+
+        strata.send(index, example, score, version);
+        stats_update_s.send({ index,{ 1, static_cast<double>(weight) } });
+    }
+}
+
+void sampler_thread(int) {
+    // TODO
+}
+
+void launch_assigner_threads(
+    Strata& strata,
+    Receiver<ExampleWithScore>& updated_examples_r,
+    Sender<pair<int, pair<int, double>>>& stats_update_s,
+    int num_threads) {
+    for (int i = 0; i < num_threads; i++) {
+        thread th(assigner_thread, updated_examples_r, strata, stats_update_s);
+        th.detach();
+    }
+}
+
+void launch_sampler_threads(
+    Strata& strata,
+    Sender<pair<ExampleWithScore, int>>& sampled_examples,
+    Sender<ExampleWithScore>& updated_examples,
+    Receiver<Model>& next_model,
+    Sender<pair<int, pair<int, double>>>& stats_update_s,
+    WeightTableRead& weights_table,
+    Receiver<Signal>& sampling_signal,
+    int num_threads) {
+    for (int i = 0; i < num_threads; i++) {
+        thread th(sampler_thread, i);
+        th.detach();
+    }
+}
+
+
 
 StratifiedStorage::StratifiedStorage(
-        int num_examples,
-        int feature_size,
-        const std::string& positive,
-        int num_examples_per_block,
-        const std::string& disk_buffer_filename
-        ) : positive(positive) {
+    int num_examples,
+    int feature_size,
+    const std::string& positive,
+    int num_examples_per_block,
+    const std::string& disk_buffer_filename,
+    int num_assigners,
+    int num_samplers,
+    Sender<std::pair<ExampleWithScore, int>>& sampled_examples,
+    Receiver<Signal>& sampling_signal,
+    Receiver<Model>& models,
+    int channel_size,
+    bool debug_mode)
+    : positive(positive) {
+    std::cerr << "debug_mode=" << debug_mode << std::endl;
+
+    WeightTableRead weights_table_r;
+    Strata strata(num_examples, feature_size, num_examples_per_block, disk_buffer_filename);
+
+    auto updated_examples = bounded_channel<ExampleWithScore>(channel_size, "updated-examples");
+    auto stats_update = bounded_channel<pair<int, pair<int, double>>>(5000000, "stats");
+
+    launch_assigner_threads(strata, updated_examples.second, stats_update.first, num_assigners);
+    launch_sampler_threads(strata, sampled_examples, updated_examples.first, models,
+        stats_update.first, weights_table_r, sampling_signal, num_samplers);
+
+    // this->counts_table_r = counts_table_r;
+    // this->weights_table_r = weights_table_r;
+    // this->updated_examples_s = updated_examples_s;
 }
 
 void StratifiedStorage::init_stratified_from_file(
@@ -53,4 +142,3 @@ void StratifiedStorage::init_stratified_from_file(
 
     std::cout << "Raw data on disk has been loaded into the stratified storage " << std::endl;
 }
-

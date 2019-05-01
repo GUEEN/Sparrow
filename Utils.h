@@ -5,7 +5,7 @@
 #include "SerialStorage.h"
 
 const double DELTA = 1e-6;
-const double SHRINK  = 1.0;
+const double SHRINK = 1.0;
 const double THRESHOLD_FACTOR = 1.0;
 const double ALMOST_ZERO = 1e-8;
 
