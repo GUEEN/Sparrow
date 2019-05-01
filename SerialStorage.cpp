@@ -192,7 +192,7 @@ std::vector<Bins> create_bins(
         total_bins += t.len();
     }
     std::cout << "Bins are created. " << ret.size() <<
-        " Features. " << total_bins << " Bins.";
+        " Features. " << total_bins << " Bins." << std::endl;
     return ret;
 }
 
