@@ -4,7 +4,6 @@
 
 #include "SerialStorage.h"
 
-
 SerialStorage::SerialStorage(
     const std::string& filename,
     int size,
@@ -13,9 +12,9 @@ SerialStorage::SerialStorage(
     const std::string& positive,
     const std::vector<Bins>& bins,
     Range range
-    ) : filename(filename), size(size), feature_size(feature_size), is_binary(false), in_memory(false),
-    positive(positive), bytes_per_example(0), index(0), range(range), bins(bins), head(0), tail(0),
-    reader(filename) {
+    ) : filename(filename), is_binary(false), in_memory(false), size(size), 
+    feature_size(feature_size), positive(positive), bytes_per_example(0), 
+    reader(filename), index(0), bins(bins), range(range), head(0), tail(0) {
 }
 
 std::vector<RawExample> SerialStorage::read_raw(int batch_size) {

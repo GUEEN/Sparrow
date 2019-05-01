@@ -45,6 +45,8 @@ private:
     ScoreBoard sum_c;
     ScoreBoard sum_c_squared;
     
+    double default_gamma;
+    double min_gamma;
     double rho_gamma;
     double root_rho_gamma;
     double tree_max_rho_gamma;
@@ -53,8 +55,6 @@ private:
     std::vector<double> sum_weights;
     std::vector<bool> is_active;
 
-    double default_gamma;
-    double min_gamma;
     int num_candid;
     int total_count;
     double total_weight;

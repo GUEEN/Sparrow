@@ -1,6 +1,6 @@
-#include <cmath>
-
 #include "Utils.h"
+
+#include <cmath>
 
 double get_weight(const Example& data, double score) {
     // min(1.0, (-score * data.label).exp())

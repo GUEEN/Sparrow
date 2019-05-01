@@ -15,19 +15,17 @@ Learner::Learner(
         int num_examples_before_shrink,
         const std::vector<Bins>& bins,
         Range range
-        ) : max_leaves(max_leaves), min_gamma(min_gamma), default_gamma(default_gamma),
-    rho_gamma(default_gamma), root_rho_gamma(default_gamma), range_start(range.start), 
-    tree_max_rho_gamma(0.0), num_examples_before_shrink(num_examples_before_shrink),
-    bins(bins), weak_rules_score(bins.size()), sum_c(bins.size()), sum_c_squared(bins.size()),
-    tree(2 * max_leaves - 1) {
-
+        ) : bins(bins), range_start(range.start), 
+    num_examples_before_shrink(num_examples_before_shrink), weak_rules_score(bins.size()),
+    sum_c(bins.size()), sum_c_squared(bins.size()), default_gamma(default_gamma),
+    min_gamma(min_gamma), rho_gamma(default_gamma), root_rho_gamma(default_gamma),
+    tree_max_rho_gamma(0.0), max_leaves(max_leaves), tree(2 * max_leaves - 1) {
     setup(0);
 }
 
 void Learner::reset_all() {
     reset_trackers();
     is_active.assign(is_active.size(), false);
-    //self.is_active.iter_mut().for_each(| t | { *t = false; });
     num_candid = 0;
     tree_max_rho_gamma = 0.0;
     setup(0);
@@ -233,7 +231,7 @@ std::shared_ptr<Tree> Learner::update(
                 int flip_index = example.feature[range_start + i];
 
                 for (int j = 0; j < NUM_RULES; ++j) {
-                    for (int k = 0; k < 3; ++j) {
+                    for (int k = 0; k < 3; ++k) {
                         bin_accum_vals[flip_index][j][k][0] += values[j][k][0];
                         bin_accum_vals[flip_index][j][k][1] += values[j][k][1];
                     }

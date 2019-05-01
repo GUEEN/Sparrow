@@ -63,8 +63,8 @@ int BitMap::log(int64_t t) {
 }
 
 DiskBuffer::DiskBuffer(
-    const std::string& filename, int block_size, int capacity) : block_size(block_size),
-    capacity(capacity), filename(filename), size(0), bitmap(capacity, false) {
+    const std::string& filename, int block_size, int capacity) : bitmap(capacity, false), 
+    block_size(block_size), capacity(capacity), size(0), filename(filename) {
     file.open(filename, std::ios::binary);
     //let file = OpenOptions::new()
     //.read(true)
