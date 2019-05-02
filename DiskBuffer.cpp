@@ -6,7 +6,7 @@ BitMap::BitMap(int size, bool all_full) {
     int vec_size = (size + 31) / 32;
     int value = all_full ? 0 : -1;
 
-    is_free = std::vector<int>(value, vec_size);
+    is_free = std::vector<int>(vec_size, value);
 }
 
 // -1 corresponds to None
