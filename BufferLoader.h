@@ -2,7 +2,28 @@
 
 #include <vector>
 
+#include "Channels.h"
 #include "Tree.h"
+
+void fill_buffer(
+    int new_sample_capacity,
+    std::vector<ExampleWithScore>& new_sample_buffer,
+    Receiver<std::pair<ExampleWithScore, int>>& gather_new_sample
+);
+
+struct Gatherer {
+
+    Gatherer(Receiver<std::pair<ExampleWithScore, int>>& gather_new_sample,
+        std::vector<ExampleWithScore>& new_sample_buffer,
+        int new_sample_capacity);
+
+    void run(bool blocking);
+
+    Receiver<std::pair<ExampleWithScore, int>> gather_new_sample;
+    std::vector<ExampleWithScore> new_sample_buffer;
+    int new_sample_capacity;
+};
+
 
 class BufferLoader {
 public:

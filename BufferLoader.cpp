@@ -1,9 +1,66 @@
 #include "BufferLoader.h"
 
+#include <iostream>
 #include <cassert>
 #include <algorithm>
+#include <vector>
 
 #include "Utils.h"
+
+
+void fill_buffer(
+    int new_sample_capacity,
+    std::vector<ExampleWithScore>& new_sample_buffer,
+    Receiver<std::pair<ExampleWithScore, int>>& gather_new_sample
+    ) {
+
+    std::cout << "Start filling the alternate buffer" << std::endl;
+
+    //new_sample_buffer.reserve(new_sample_capacity);
+
+    while (new_sample_buffer.size() < new_sample_capacity) {
+        std::pair<ExampleWithScore, int> excc = gather_new_sample.recv();
+        ExampleWithScore example = excc.first;
+        int c = excc.second;
+        // `c` is the number of times this example should be put into the sample set
+        while (new_sample_buffer.size() < new_sample_capacity && c > 0) {
+            new_sample_buffer.emplace_back(example);
+            c--;
+        }        
+    }
+}
+
+void gatherer_thread(
+    int new_sample_capacity,
+    std::vector<ExampleWithScore>& new_sample_buffer,
+    Receiver<std::pair<ExampleWithScore, int>>& gather_new_sample) {
+    while (true) {
+        fill_buffer(new_sample_capacity, new_sample_buffer, gather_new_sample);
+    }
+}
+
+Gatherer::Gatherer(
+        Receiver<std::pair<ExampleWithScore, int>>& gather_new_sample,
+        std::vector<ExampleWithScore>& new_sample_buffer,
+        int new_sample_capacity
+        ) : gather_new_sample(gather_new_sample), new_sample_buffer(new_sample_buffer),
+            new_sample_capacity(new_sample_capacity) { }
+
+/// Start the gatherer.
+///
+/// Fill the alternate memory buffer of the buffer loader
+void Gatherer::run(bool blocking) {
+
+    if (blocking) {
+        std::cout << "Starting blocking gatherer" << std::endl;
+        fill_buffer(new_sample_capacity, new_sample_buffer, gather_new_sample);
+    } else {
+        std::cout << "Starting non-blocking gatherer" << std::endl;
+        std::thread th(gatherer_thread, new_sample_capacity, std::ref(new_sample_buffer), std::ref(gather_new_sample));
+        th.detach();
+    }
+}
+
 
 BufferLoader::BufferLoader(
     int size,
