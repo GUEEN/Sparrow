@@ -207,13 +207,13 @@ StratifiedStorage::StratifiedStorage(
     Receiver<Signal>& sampling_signal,
     Receiver<Model>& models,
     int channel_size,
-    bool debug_mode) : positive(positive) {
+    bool debug_mode) : positive(positive),
+    updated_examples(bounded_channel<ExampleWithScore>(channel_size, "updated-examples")) {
     std::cerr << "debug_mode=" << debug_mode << std::endl;
 
     WeightTableRead weights_table_r;
     Strata strata(num_examples, feature_size, num_examples_per_block, disk_buffer_filename);
 
-    auto updated_examples = bounded_channel<ExampleWithScore>(channel_size, "updated-examples");
     auto stats_update = bounded_channel<pair<int, pair<int, double>>>(5000000, "stats");
 
     launch_assigner_threads(strata, updated_examples.second, stats_update.first, num_assigners);
@@ -258,7 +258,7 @@ void StratifiedStorage::init_stratified_from_file(
                 }
             }
             LabeledData<TFeature, TLabel> mapped_data(features, rexample.label);
-            // send mapped data
+            updated_examples.first.send(std::make_pair(mapped_data, std::make_pair( 0.0, 0 )));
         }
         index += batch_size;
     }

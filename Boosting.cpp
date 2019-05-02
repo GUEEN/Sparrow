@@ -78,6 +78,7 @@ void Boosting::training(
             }
 
             model.push_back(*new_rule);
+            try_send_model();
 
             is_gamma_significant = learner.is_gamma_significant();
             learner.reset_all();
@@ -87,4 +88,8 @@ void Boosting::training(
 
     std::cout << "Training is finished. Model length: " << model.size() << ". Is gamma significant?" <<
         learner.is_gamma_significant() << ".\n";
+}
+
+void Boosting::try_send_model() {
+    sampler_channel_s.send(model);
 }

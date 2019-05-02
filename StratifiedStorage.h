@@ -41,6 +41,8 @@ public:
 private:
 
     std::string positive;
+    std::pair<Sender<ExampleWithScore>, Receiver<ExampleWithScore>> updated_examples;
+
 };
 
 int sample_weights_table(WeightTableRead& weight_table_r);

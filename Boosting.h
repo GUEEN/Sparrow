@@ -36,4 +36,7 @@ private:
     double remote_sum_gamma;
 
     Sender<Model> sampler_channel_s;
+
+    void try_send_model();
+
 };
