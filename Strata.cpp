@@ -31,7 +31,7 @@ void stratum_block_read_thread(
     Receiver<ExampleWithScore>& in_queue_r_,
     Sender<ExampleWithScore>& out_queue_s_,
     Receiver<int>& slot_r,
-    DiskBuffer& disk_buffer) {
+    std::unique_ptr<DiskBuffer>& disk_buffer) {
     std::vector<ExampleInSampleSet> out_block;
     int index = 0;
 
@@ -41,7 +41,7 @@ void stratum_block_read_thread(
             if (block_index_try.first) {
                 int& block_index = block_index_try.second;
 
-                std::vector<char> block_data = disk_buffer.read(block_index);
+                std::vector<char> block_data = disk_buffer->read(block_index);
                 // deseialize block_data
                 // write deserialized block_data to  out_block
                 index = 0;
@@ -64,7 +64,7 @@ void stratum_block_read_thread(
 void stratum_block_write_thread(int num_examples_per_block,
     Receiver<ExampleWithScore>& in_queue_r_,
     Sender<int>& slot_s,
-    DiskBuffer& disk_buffer) {
+    std::unique_ptr<DiskBuffer>& disk_buffer) {
     while (true) {
         if (in_queue_r_.len() >= num_examples_per_block) {
 
@@ -75,7 +75,7 @@ void stratum_block_write_thread(int num_examples_per_block,
 
             std::vector<char> serialized_block; // = serialize(in_block);
 
-            int slot_index = disk_buffer.write(serialized_block);
+            int slot_index = disk_buffer->write(serialized_block);
             slot_s.send(slot_index);
         }
         //else {
@@ -88,7 +88,8 @@ void stratum_block_write_thread(int num_examples_per_block,
 Stratum::Stratum(
     int index,
     int num_examples_per_block,
-    DiskBuffer& disk_buffer) : in_channel(bounded_channel<ExampleWithScore>(num_examples_per_block * 2, "stratum-i" + std::to_string(index))),
+    std::unique_ptr<DiskBuffer>& disk_buffer) :
+    in_channel(bounded_channel<ExampleWithScore>(num_examples_per_block * 2, "stratum-i" + std::to_string(index))),
     slot_channel(unbounded_channel<int>("stratum-slot" + std::to_string(index))),
     out_channel(bounded_channel<ExampleWithScore>(num_examples_per_block * 2, "stratum-o" + std::to_string(index))) {
 
@@ -123,8 +124,25 @@ void Strata::send(int index, const Example& example, double score, int version) 
     sender->send({ example, { score, version } });
 }
 
-void Strata::create(int index) {
-    // TODO!!!
-    assert(false);
+std::pair<InQueueSender, OutQueueReceiver> Strata::create(int index) {
+
+    if (in_queues[index]) {
+        // Other process have created the stratum before this process secures the writing lock
+        return std::make_pair(*in_queues[index], *out_queues[index]);
+    } else {
+        // Each stratum will create two threads for writing in and reading out examples
+        // TODO: create a systematic approach to manage stratum threads
+        Stratum stratum(index, num_examples_per_block, disk_buffer);
+
+        Sender<ExampleWithScore>& in_queue = stratum.in_channel.first;
+        Receiver<ExampleWithScore>& out_queue = stratum.out_channel.second;
+
+        //let(in_queue, out_queue) = (stratum.in_queue_s.clone(), stratum.out_queue_r.clone());
+        in_queues[index] = std::make_unique<InQueueSender>(in_queue);
+        out_queues[index] = std::make_unique<OutQueueReceiver>(out_queue);
+            
+        return std::make_pair(in_queue, out_queue);
+    }
+
 }
 

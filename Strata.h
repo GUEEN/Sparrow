@@ -17,7 +17,7 @@ DiskBuffer* get_disk_buffer(
 struct Stratum {
     Stratum(int index,
         int num_examples_per_block,
-        DiskBuffer& disk_buffer);
+        std::unique_ptr<DiskBuffer>& disk_buffer);
 
     std::pair<Sender<ExampleWithScore>, Receiver<ExampleWithScore>> in_channel;
     std::pair<Sender<ExampleWithScore>, Receiver<ExampleWithScore>> out_channel;
@@ -50,5 +50,5 @@ struct Strata {
     void send(int index, const Example& example, double score, int version);
 
 private:
-    void create(int index);
+    std::pair<InQueueSender, OutQueueReceiver> create(int index);
 };
