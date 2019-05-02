@@ -6,6 +6,7 @@
 
 #include "Boosting.h"
 #include "SerialStorage.h"
+#include "StratifiedStorage.h"
 
 struct Config {
     /// File path to the training data
@@ -50,6 +51,10 @@ struct Config {
     int num_examples_per_block;
     /// File name for the stratified binary file
     std::string disk_buffer_filename;
+    /// Number of threads for putting examples back to correct strata
+    int num_assigners;
+    /// Number of threads for sampling examples from strata
+    int num_samplers;
     /// Flag for keeping all intermediate models during training (for debugging purpose)
     bool save_process;
     /// Number of iterations between persisting models on disk
@@ -87,6 +92,8 @@ Config a1a_config = {
     false,
     128,
     "stratified.bin",
+    2,
+    2,
     false,
     1,
     false,
@@ -129,7 +136,7 @@ void validate(
 
     int last_model_length = 0;
 
-    for (;;) {
+    while (true) {
         //if models_list.read_line(&mut line).is_err() || line.trim() == "" {
         //    break;
         //}
@@ -232,6 +239,32 @@ void training(const Config& config) {
 
     std::vector<Example> validation_set1;
     std::vector<Example> validation_set2;
+
+    std::cout << "Starting the stratified structure." << std::endl;
+    StratifiedStorage stratified_structure(
+        config.num_examples,
+        config.num_features,
+        config.positive,
+        config.num_examples_per_block,
+        config.disk_buffer_filename,
+        config.num_assigners,
+        config.num_samplers,
+        examples_channel.first,
+        signal_channel.second,
+        model_channel.second,
+        config.channel_size,
+        config.debug_mode
+        );
+    std::cout << "Initializing the stratified structure." << std::endl;
+    stratified_structure.init_stratified_from_file(
+        config.training_filename,
+        config.num_examples,
+        config.batch_size,
+        config.num_features,
+        config.range,
+        bins
+        );
+
 
     std::cout << "Starting the buffered loader" << std::endl;
     BufferLoader buffer_loader(
