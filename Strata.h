@@ -13,7 +13,19 @@ DiskBuffer* get_disk_buffer(
     int feature_size,
     int num_examples,
     int num_examples_per_block);
+
+struct Stratum {
+    Stratum(int index,
+        int num_examples_per_block,
+        DiskBuffer& disk_buffer);
+
+    std::pair<Sender<ExampleWithScore>, Receiver<ExampleWithScore>> in_channel;
+    std::pair<Sender<ExampleWithScore>, Receiver<ExampleWithScore>> out_channel;
+    std::pair<Sender<int>, Receiver<int>> slot_channel;
     
+    /*InQueueSender in_queue_s;
+    OutQueueReceiver out_queue_r;*/
+};    
 
 struct Strata {
     int num_examples_per_block;

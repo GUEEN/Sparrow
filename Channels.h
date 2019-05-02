@@ -60,6 +60,11 @@ public:
         return name;
     }
 
+    int len() const {
+        return q.size();
+    }
+
+
 private:
     std::string name;
     std::mutex mutex;
@@ -89,8 +94,8 @@ template<typename T>
 struct Receiver {
 public:
     explicit Receiver(std::shared_ptr<Channel<T>> chan) : chan(chan) {}
-    T recv(const T& value) {
-        return chan->recv(value);
+    T recv() {
+        return chan->recv();
     }
     std::pair<bool, T> try_recv() {
         return chan->try_recv();
@@ -98,10 +103,22 @@ public:
     ~Receiver() {
         std::cerr << "Deleting last receiver for channel '" << chan->get_name() << "'" << std::endl;
     }
+
+    int len() const {
+        return chan->len();
+    }
+
 private:
     Receiver() = delete;
     std::shared_ptr<Channel<T>> chan;
 };
+
+template<typename T>
+std::pair<Sender<T>, Receiver<T>> unbounded_channel(std::string& name) {
+    // TODO: make channel actually bounded
+    std::shared_ptr<Channel<T>> chan(new Channel<T>(name));
+    return std::make_pair(Sender<T>(chan), Receiver<T>(chan));
+}
 
 template<typename T>
 std::pair<Sender<T>, Receiver<T>> bounded_channel(int size, const std::string& name) {
