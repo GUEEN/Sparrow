@@ -14,10 +14,12 @@ Boosting::Boosting(
     // serial_training_loader: SerialStorage,
     Range range,
     int max_sample_size,
-    double default_gamma
+    double default_gamma,
+    Sender<Model>& sampler_channel_s
     ) : num_iterations(num_iterations), 
     training_loader(training_loader),
-    learner(max_leaves, min_gamma, default_gamma, max_trials_before_shrink, bins, range) {
+    learner(max_leaves, min_gamma, default_gamma, max_trials_before_shrink, bins, range),
+    sampler_channel_s(sampler_channel_s) {
     // add root node for balancing labels
     TreeScore base_tree_and_gamma = get_base_tree(max_sample_size, training_loader);
     Tree base_tree = base_tree_and_gamma.first;
@@ -53,6 +55,7 @@ void Boosting::training(
     
     int iteration = 0;
     bool is_gamma_significant = true;
+   
 
     while (is_gamma_significant && (num_iterations <= 0 || model.size() < num_iterations)) {
 

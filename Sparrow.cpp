@@ -198,6 +198,18 @@ void validate(
 
 void training(const Config& config) {
 
+    // Strata -> BufferLoader
+    std::pair<Sender<std::pair<ExampleWithScore, int>>, Receiver<std::pair<ExampleWithScore, int>>> examples_channel
+        = bounded_channel<std::pair<ExampleWithScore, int>>(config.channel_size, "gather-samples");
+
+    // BufferLoader -> Strata
+    std::pair<Sender<Signal>, Receiver<Signal>> signal_channel =
+        bounded_channel<Signal>(10, "sampling-signal");
+
+    // Booster -> Strata
+    std::pair<Sender<Model>, Receiver<Model>> model_channel =
+        bounded_channel<Model>(config.channel_size, "updated_models");
+    
     std::cout << "Creating bins" << std::endl;
 
     SerialStorage serial_training_loader(
@@ -225,6 +237,8 @@ void training(const Config& config) {
     BufferLoader buffer_loader(
         config.buffer_size,
         config.batch_size,
+        examples_channel.second,
+        signal_channel.first,
         config.serial_sampling,
         true,
         config.min_ess);
@@ -240,7 +254,8 @@ void training(const Config& config) {
         // serial_training_loader,
         config.range,
         config.max_sample_size,
-        config.default_gamma
+        config.default_gamma,
+        model_channel.first
         );
 
 

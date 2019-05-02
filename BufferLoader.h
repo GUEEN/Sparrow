@@ -30,6 +30,8 @@ public:
     BufferLoader(
         int size,
         int batch_size,
+        Receiver<std::pair<ExampleWithScore, int>>&  gather_new_sample,
+        Sender<Signal>& sampling_signal_channel,
         bool serial_sampling,
         bool init_block,
         double min_ess
@@ -55,6 +57,8 @@ private:
 
     std::vector<ExampleInSampleSet> examples;
     std::vector<ExampleInSampleSet> new_examples;
+
+    Gatherer gatherer;
         
     bool serial_sampling;
     

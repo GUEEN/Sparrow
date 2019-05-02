@@ -65,9 +65,12 @@ void Gatherer::run(bool blocking) {
 BufferLoader::BufferLoader(
     int size,
     int batch_size,
+    Receiver<std::pair<ExampleWithScore, int>>&  gather_new_sample,
+    Sender<Signal>& sampling_signal_channel,
     bool serial_sampling,
     bool init_block,
     double min_ess): size(size), batch_size(batch_size), serial_sampling(serial_sampling),
+    gatherer(gather_new_sample, new_examples, size),
     ess(0.0), min_ess(0.0), curr_example(0)  {
     num_batch = (size + batch_size - 1) / batch_size;
 }

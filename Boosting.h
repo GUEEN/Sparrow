@@ -16,7 +16,8 @@ public:
         BufferLoader& training_loader,
         Range range,
         int max_sample_size,
-        double default_gamma);
+        double default_gamma,
+        Sender<Model>& sampler_channel_s);
 
     void training(
         std::vector<Example> validate_set1,
@@ -25,6 +26,7 @@ public:
 private:
 
     int num_iterations;
+    int channel_size;
 
     BufferLoader training_loader;
     Model model;
@@ -32,4 +34,6 @@ private:
 
     double sum_gamma;
     double remote_sum_gamma;
+
+    Sender<Model> sampler_channel_s;
 };
