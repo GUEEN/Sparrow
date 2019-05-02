@@ -47,6 +47,7 @@ public:
     std::vector<ExampleInSampleSet> get_next_mut_batch(bool allow_switch);
 
     int get_num_batches() const;
+    void force_switch();
     bool try_switch();
     void update_ess();
 
@@ -54,6 +55,9 @@ private:
     int size;
     int batch_size;
     int num_batch;
+
+    Receiver<std::pair<ExampleWithScore, int>> gather_new_sample;
+    Sender<Signal> sampling_signal_channel;
 
     std::vector<ExampleInSampleSet> examples;
     std::vector<ExampleInSampleSet> new_examples;

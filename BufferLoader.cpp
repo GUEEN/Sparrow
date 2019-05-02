@@ -69,10 +69,22 @@ BufferLoader::BufferLoader(
     Sender<Signal>& sampling_signal_channel,
     bool serial_sampling,
     bool init_block,
-    double min_ess): size(size), batch_size(batch_size), serial_sampling(serial_sampling),
+    double min_ess): size(size), batch_size(batch_size), 
+    gather_new_sample(gather_new_sample),
+    sampling_signal_channel(sampling_signal_channel),
+    serial_sampling(serial_sampling),
     gatherer(gather_new_sample, new_examples, size),
     ess(0.0), min_ess(0.0), curr_example(0)  {
     num_batch = (size + batch_size - 1) / batch_size;
+    if (serial_sampling == false) {
+        sampling_signal_channel.send(Signal::START);
+    }
+    if (init_block) {
+        force_switch();
+    }
+    if (serial_sampling == false){
+        gatherer.run(false);
+    }
 }
 
 
@@ -105,6 +117,20 @@ std::vector<ExampleInSampleSet> BufferLoader::get_next_mut_batch(bool allow_swit
     int tail = std::min(curr_example + batch_size, size);
 
     return std::vector<ExampleInSampleSet>(examples.begin() + curr_example, examples.begin() + tail);
+}
+
+void BufferLoader::force_switch() {
+    std::cout << "Force-switch started." << std::endl;
+    if (serial_sampling) {
+        sampling_signal_channel.send(Signal::START);
+    }
+    gatherer.run(true);
+    if (serial_sampling) {
+        sampling_signal_channel.send(Signal::STOP);
+    }
+
+    assert(try_switch());
+    std::cout << "Force-switch quit." << std::endl;
 }
 
 bool BufferLoader::try_switch() {
