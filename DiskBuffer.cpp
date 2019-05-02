@@ -63,8 +63,11 @@ int BitMap::log(int64_t t) {
 }
 
 DiskBuffer::DiskBuffer(
-    const std::string& filename, int block_size, int capacity) : bitmap(capacity, false), 
-    block_size(block_size), capacity(capacity), size(0), filename(filename) {
+    const std::string& filename, int feature_size, int num_examples_per_block, int capacity) : bitmap(capacity, false), 
+    feature_size(feature_size), num_examples_per_block(num_examples_per_block),
+    capacity(capacity), size(0), filename(filename) {
+    block_size = get_block_size(feature_size, num_examples_per_block);
+
     file.open(filename, std::ios::binary);
     //let file = OpenOptions::new()
     //.read(true)
@@ -79,10 +82,8 @@ DiskBuffer::~DiskBuffer() {
     remove(filename.c_str());
 }
 
-
-
 int DiskBuffer::write(const std::vector<char>& data) {
-    assert(data.size() == block_size);
+    //assert(data.size() == block_size);
 
     int idx = bitmap.get_first_free();
     bitmap.mark_filled(idx);
@@ -127,5 +128,97 @@ std::vector<char> DiskBuffer::read(int position) {
 
     bitmap.mark_free(position);
     return block_buffer;
+}
+
+int DiskBuffer::write_block(const std::vector<ExampleInSampleSet>& data) {
+    //assert(data.size() == block_size);
+
+    int idx = bitmap.get_first_free();
+    bitmap.mark_filled(idx);
+
+    //let position = {
+    //    let idx = self.bitmap.get_first_free().expect(
+    //        "No free slot available."
+    //    );
+    //self.bitmap.mark_filled(idx);
+    //idx
+    //};
+    int position = idx;
+
+    assert(position <= size);
+
+    if (position >= size) {
+        ++size;
+    }
+    assert(size <= capacity);
+
+    int offset = position * block_size;
+
+    file.seekg(offset);
+    for (int i = 0; i < num_examples_per_block; ++i) {
+        for (int j = 0; j < feature_size; ++j) {
+            write_element<TFeature>(data[i].first.feature[j]);
+        }
+        write_element<TLabel>(data[i].first.label);
+
+        write_element<double>(data[i].second.first);
+        write_element<int>(data[i].second.second);
+    }
+
+    file.flush();
+
+    return position;
+}
+
+std::vector<ExampleInSampleSet> DiskBuffer::read_block(int position) {
+    assert(position < size);
+
+    int64_t offset = position * block_size;
+
+    file.seekg(offset);
+
+    std::vector<ExampleInSampleSet> buffer;
+
+    for (int i = 0; i < num_examples_per_block; ++i) {
+        std::vector<TFeature> features(feature_size);
+        for (int j = 0; j < feature_size; ++j) {
+            features[j] = read_element<TFeature>();
+        }
+        int label = read_element<TLabel>();
+        
+        double score = read_element<double>();
+        int version = read_element<int>();
+
+        Example ex(features, label);
+
+        buffer.emplace_back(ex, std::make_pair( score, version));
+    }
+    position = file.tellg();
+
+    bitmap.mark_free(position);
+    return buffer;
+}
+
+
+// size in bytes of ExampleWithScore
+// size of Example + size of int + size of double
+// size of Example = size of features + size of labels
+
+const int single_feature_size = sizeof(TFeature);
+const int label_size = sizeof(TLabel);
+const int score_size = sizeof(double) + sizeof(int);
+
+int DiskBuffer::get_block_size(int feature_size, int num_examples_per_block) {
+    //Example example(std::vector<TFeature>(feature_size), -1);
+    //ExampleWithScore example_with_score = std::make_pair(example, std::make_pair(0.0, 0));
+    //std::vector<ExampleWithScore> block(num_examples_per_block, example_with_score);
+
+    //return sizeof(block);
+    //let block : Block = vec![example_with_score; num_examples_per_block];
+    //let serialized_block : Vec<u8> = serialize(&block).unwrap();
+    //serialized_block.len()
+
+    return (single_feature_size * feature_size + label_size + score_size) * num_examples_per_block;
+
 }
 

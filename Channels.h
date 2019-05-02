@@ -41,10 +41,11 @@ public:
             q.pop();
             return value;
         }
+        std::cerr << "object from channel "<< name << " received!" << std::endl;
     }
 
     std::pair<bool, T> try_recv() {
-        std::cerr << "thread " << std::this_thread::get_id() << " is try_recv from '" << name << "' channel";
+        std::cerr << "thread " << std::this_thread::get_id() << " is try_recv from '" << name << "' channel" << std::endl;
         std::lock_guard<std::mutex> lock(mutex);
         if (q.empty()) {
             std::cerr << " [chan is empty]" << std::endl;

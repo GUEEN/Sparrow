@@ -168,6 +168,7 @@ void launch_assigner_threads(
     Sender<pair<int, pair<int, double>>>& stats_update_s,
     int num_threads) {
     for (int i = 0; i < num_threads; i++) {
+        std::cout << "Launch assigner thread " << i << std::endl;
         thread th(assigner_thread, std::ref(updated_examples_r), std::ref(strata), std::ref(stats_update_s));
         th.detach();
     }
@@ -187,6 +188,7 @@ void launch_sampler_threads(
     std::cout << "Sampler model update" << std::endl;
 
     for (int i = 0; i < num_threads; i++) {
+        std::cout << "Launch sampler thread " << i << std::endl;
         thread th(sampler_thread, std::ref(strata), std::ref(sampled_examples), 
             std::ref(updated_examples), model,
             std::ref(stats_update_s), std::ref(weights_table));
@@ -231,8 +233,7 @@ void StratifiedStorage::init_stratified_from_file(
     int batch_size,
     int feature_size,
     Range range,
-    const std::vector<Bins>& bins
-) {
+    const std::vector<Bins>& bins) {
     SerialStorage reader(
         filename,
         size,

@@ -5,25 +5,13 @@
 
 using std::lock_guard;
 
-int get_block_size(int feature_size, int num_examples_per_block) {
-    Example example(std::vector<TFeature>(feature_size), -1);
-    ExampleWithScore example_woth_score = std::make_pair(example, std::make_pair(0.0, 0));
-    std::vector<ExampleWithScore> block(num_examples_per_block, example_woth_score);
-
-    return sizeof(block);
-    //let block : Block = vec![example_with_score; num_examples_per_block];
-    //let serialized_block : Vec<u8> = serialize(&block).unwrap();
-    //serialized_block.len()
-}
-
 DiskBuffer* get_disk_buffer(
     const std::string& filename,
     int feature_size,
     int num_examples,
     int num_examples_per_block) {
     int num_disk_block = (num_examples + num_examples_per_block - 1) / num_examples_per_block;
-    int block_size = get_block_size(feature_size, num_examples_per_block);
-    return new DiskBuffer(filename, block_size, num_disk_block);
+    return new DiskBuffer(filename, feature_size, num_examples_per_block, num_disk_block);
 }
 
 
@@ -41,8 +29,8 @@ void stratum_block_read_thread(
             if (block_index_try.first) {
                 int& block_index = block_index_try.second;
 
-                std::vector<char> block_data = disk_buffer->read(block_index);
-                // deseialize block_data
+                out_block = disk_buffer->read_block(block_index);
+                // deserialize block_data
                 // write deserialized block_data to  out_block
                 index = 0;
                 // if is some
@@ -73,9 +61,7 @@ void stratum_block_write_thread(int num_examples_per_block,
                 in_block.push_back(in_queue_r_.recv());
             }
 
-            std::vector<char> serialized_block; // = serialize(in_block);
-
-            int slot_index = disk_buffer->write(serialized_block);
+            int slot_index = disk_buffer->write_block(in_block);
             slot_s.send(slot_index);
         }
         //else {
