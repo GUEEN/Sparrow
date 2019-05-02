@@ -22,7 +22,9 @@ void assigner_thread(
     Sender<pair<int, pair<int, double>>>& stats_update_s) {
     while (true) {
         auto ret = updated_examples_r.try_recv();
-        if (!ret.first) break;
+        if (!ret.first) {
+            break;
+        }
 
         const ExampleWithScore& ret_value = ret.second;
         const Example& example = ret_value.first;
@@ -35,7 +37,7 @@ void assigner_thread(
         frexp(weight, &index);
 
         strata.send(index, example, score, version);
-        stats_update_s.send({ index,{ 1, static_cast<double>(weight) } });
+        stats_update_s.send(std::make_pair(index, std::make_pair( 1, static_cast<double>(weight) ) ));
     }
 }
 
@@ -49,7 +51,7 @@ void launch_assigner_threads(
     Sender<pair<int, pair<int, double>>>& stats_update_s,
     int num_threads) {
     for (int i = 0; i < num_threads; i++) {
-        thread th(assigner_thread, updated_examples_r, strata, stats_update_s);
+        thread th(assigner_thread, std::ref(updated_examples_r), std::ref(strata), std::ref(stats_update_s));
         th.detach();
     }
 }
@@ -68,7 +70,6 @@ void launch_sampler_threads(
         th.detach();
     }
 }
-
 
 
 StratifiedStorage::StratifiedStorage(

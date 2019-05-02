@@ -7,6 +7,7 @@
 template<class TFeature, class TLabel>
 struct LabeledData {
 
+    LabeledData() = default;
     LabeledData(const std::vector<TFeature>& feature, TLabel label): feature(feature), label(label) {
     }
 

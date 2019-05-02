@@ -20,6 +20,9 @@ struct BitMap {
 class DiskBuffer {
 public:
     DiskBuffer(const std::string& filename, int block_size, int capacity);
+    DiskBuffer(const DiskBuffer&) = default;
+    DiskBuffer(DiskBuffer&&) = default;
+
     ~DiskBuffer();
 
     int write(const std::vector<char>& data);

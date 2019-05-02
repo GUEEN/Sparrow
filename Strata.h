@@ -6,19 +6,14 @@
 
 #include "Channels.h"
 #include "DiskBuffer.h"
-#include "LabeledData.h"
 
-typedef Sender<ExampleWithScore> InQueueSender;
-typedef Receiver<ExampleWithScore> OutQueueReceiver;
-
-typedef std::array<std::unique_ptr<InQueueSender>, 256> HashMapSenders;
-typedef std::array<std::unique_ptr<OutQueueReceiver>, 256> HashMapReceiver;
 
 DiskBuffer* get_disk_buffer(
     const std::string& filename,
     int feature_size,
     int num_examples,
     int num_examples_per_block);
+    
 
 struct Strata {
     int num_examples_per_block;

@@ -12,6 +12,9 @@
 #include <string>
 #include <thread>
 #include <utility>
+#include <array>
+
+#include "LabeledData.h"
 
 enum Signal { START, STOP };
 
@@ -42,16 +45,19 @@ public:
 
     std::pair<bool, T> try_recv() {
         std::cerr << "thread " << std::this_thread::get_id() << " is try_recv from '" << name << "' channel";
-        T value;
         std::lock_guard<std::mutex> lock(mutex);
         if (q.empty()) {
             std::cerr << " [chan is empty]" << std::endl;
             return std::make_pair(false, T());
         }
-        value = q.front();
+        T value = q.front();
         q.pop();
         std::cerr << " [got value]" << std::endl;
         return std::pair<bool, T>(true, value);
+    }
+
+    std::string get_name() const {
+        return name;
     }
 
 private:
@@ -72,7 +78,7 @@ public:
         chan->send(value);
     }
     ~Sender() {
-        std::cerr << "Deleting last sender for channel '" << chan->name << "'" << std::endl;
+        std::cerr << "Deleting last sender for channel '" << chan->get_name() << "'" << std::endl;
     }
 private:
     Sender() = delete;
@@ -90,7 +96,7 @@ public:
         return chan->try_recv();
     }
     ~Receiver() {
-        std::cerr << "Deleting last receiver for channel '" << chan->name << "'" << std::endl;
+        std::cerr << "Deleting last receiver for channel '" << chan->get_name() << "'" << std::endl;
     }
 private:
     Receiver() = delete;
@@ -101,6 +107,11 @@ template<typename T>
 std::pair<Sender<T>, Receiver<T>> bounded_channel(int size, const std::string& name) {
     // TODO: make channel actually bounded
     std::shared_ptr<Channel<T>> chan(new Channel<T>(name));
-    return{ Sender<T>(chan), Receiver<T>(chan) };
+    return std::make_pair(Sender<T>(chan), Receiver<T>(chan));
 }
 
+typedef Sender<ExampleWithScore> InQueueSender;
+typedef Receiver<ExampleWithScore> OutQueueReceiver;
+
+typedef std::array<std::unique_ptr<InQueueSender>, 256> HashMapSenders;
+typedef std::array<std::unique_ptr<OutQueueReceiver>, 256> HashMapReceiver;
