@@ -215,7 +215,7 @@ void training(const Config& config) {
 
     // Booster -> Strata
     std::pair<Sender<Model>, Receiver<Model>> model_channel =
-        bounded_channel<Model>(config.channel_size, "updated_models");
+        bounded_channel<Model>(config.channel_size, "updated-models");
     
     std::cout << "Creating bins" << std::endl;
 

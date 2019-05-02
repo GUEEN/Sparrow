@@ -45,7 +45,8 @@ void assigner_thread(
     while (true) {
         auto ret = updated_examples_r.try_recv();
         if (!ret.first) {
-            break;
+            //break;
+            continue;
         }
 
         const ExampleWithScore& ret_value = ret.second;
@@ -219,8 +220,8 @@ StratifiedStorage::StratifiedStorage(
     auto stats_update = bounded_channel<pair<int, pair<int, double>>>(5000000, "stats");
 
     launch_assigner_threads(strata, updated_examples.second, stats_update.first, num_assigners);
-    launch_sampler_threads(strata, sampled_examples, updated_examples.first, models,
-        stats_update.first, weights_table_r, sampling_signal, num_samplers);
+   // launch_sampler_threads(strata, sampled_examples, updated_examples.first, models,
+   //     stats_update.first, weights_table_r, sampling_signal, num_samplers);
 
     // this->counts_table_r = counts_table_r;
     // this->weights_table_r = weights_table_r;
