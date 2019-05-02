@@ -124,6 +124,15 @@ void Strata::send(int index, const Example& example, double score, int version) 
     sender->send({ example, { score, version } });
 }
 
+std::unique_ptr<InQueueSender>& Strata::get_in_queue(int index) {
+    return in_queues[index];
+}
+
+std::unique_ptr<OutQueueReceiver>& Strata::get_out_queue(int index) {
+    return out_queues[index];
+}
+
+
 std::pair<InQueueSender, OutQueueReceiver> Strata::create(int index) {
 
     if (in_queues[index]) {

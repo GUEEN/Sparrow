@@ -10,6 +10,9 @@
 #include "Tree.h"
 #include "Utils.h"
 
+// !!!! temporary
+typedef const std::map<int, double> WeightTableRead;
+
 class StratifiedStorage {
 public:
     StratifiedStorage(
@@ -39,3 +42,5 @@ private:
 
     std::string positive;
 };
+
+int sample_weights_table(WeightTableRead& weight_table_r);

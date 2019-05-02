@@ -48,6 +48,9 @@ struct Strata {
     }
 
     void send(int index, const Example& example, double score, int version);
+    
+    std::unique_ptr<InQueueSender>& get_in_queue(int index);
+    std::unique_ptr<OutQueueReceiver>& get_out_queue(int index);
 
 private:
     std::pair<InQueueSender, OutQueueReceiver> create(int index);
