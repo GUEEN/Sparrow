@@ -115,8 +115,7 @@ private:
 };
 
 template<typename T>
-std::pair<Sender<T>, Receiver<T>> unbounded_channel(std::string& name) {
-    // TODO: make channel actually bounded
+std::pair<Sender<T>, Receiver<T>> unbounded_channel(const std::string& name) {
     std::shared_ptr<Channel<T>> chan(new Channel<T>(name));
     return std::make_pair(Sender<T>(chan), Receiver<T>(chan));
 }
