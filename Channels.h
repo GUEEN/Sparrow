@@ -24,13 +24,13 @@ public:
     explicit Channel(const std::string& name) : name(name) {}
 
     void send(const T& value) {
-        std::cerr << "thread " << std::this_thread::get_id() << " is sending to '" << name << "' channel" << std::endl;
+        std::cout << "thread " << std::this_thread::get_id() << " is sending to '" << name << "' channel" << std::endl;
         std::lock_guard<std::mutex> lock(mutex);
         q.push(value);
     }
 
     T recv() {
-        std::cerr << "thread " << std::this_thread::get_id() << " is recv from '" << name << "' channel" << std::endl;
+        std::cout << "thread " << std::this_thread::get_id() << " is recv from '" << name << "' channel" << std::endl;
         while (true) {
             std::lock_guard<std::mutex> lock(mutex);
             if (q.empty()) {
@@ -41,19 +41,19 @@ public:
             q.pop();
             return value;
         }
-        std::cerr << "object from channel "<< name << " received!" << std::endl;
+        std::cout << "object from channel "<< name << " received!" << std::endl;
     }
 
     std::pair<bool, T> try_recv() {
-        std::cerr << "thread " << std::this_thread::get_id() << " is try_recv from '" << name << "' channel" << std::endl;
+        std::cout << "thread " << std::this_thread::get_id() << " is try_recv from '" << name << "' channel" << std::endl;
         std::lock_guard<std::mutex> lock(mutex);
         if (q.empty()) {
-            std::cerr << " [chan is empty]" << std::endl;
+            std::cout << " [chan is empty]" << std::endl;
             return std::make_pair(false, T());
         }
         T value = q.front();
         q.pop();
-        std::cerr << " [got value]" << std::endl;
+        std::cout << " [got value]" << std::endl;
         return std::pair<bool, T>(true, value);
     }
 
@@ -84,7 +84,7 @@ public:
         chan->send(value);
     }
     ~Sender() {
-        std::cerr << "Deleting last sender for channel '" << chan->get_name() << "'" << std::endl;
+        std::cout << "Deleting last sender for channel '" << chan->get_name() << "'" << std::endl;
     }
 private:
     Sender() = delete;
@@ -102,7 +102,7 @@ public:
         return chan->try_recv();
     }
     ~Receiver() {
-        std::cerr << "Deleting last receiver for channel '" << chan->get_name() << "'" << std::endl;
+        std::cout << "Deleting last receiver for channel '" << chan->get_name() << "'" << std::endl;
     }
 
     int len() const {

@@ -6,7 +6,7 @@
 BufReader::BufReader(const std::string& filename) {
     f.open(filename);
     if (f.good() == false) {
-        std::cerr << "FILE NOT FOUND!" << std::endl;
+        std::cout << "FILE NOT FOUND!" << std::endl;
         exit(EXIT_FAILURE);
     }
 }
