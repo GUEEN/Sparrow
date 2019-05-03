@@ -9,6 +9,7 @@
 #include "LabeledData.h"
 #include "Tree.h"
 #include "Utils.h"
+#include "Strata.h"
 
 // !!!! temporary
 typedef const std::map<int, double> WeightTableRead;
@@ -42,6 +43,7 @@ private:
 
     std::string positive;
     std::pair<Sender<ExampleWithScore>, Receiver<ExampleWithScore>> updated_examples;
+    std::shared_ptr<Strata> strata;
 
 };
 

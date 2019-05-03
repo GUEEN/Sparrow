@@ -7,7 +7,6 @@
 
 #include "Channels.h"
 #include "SerialStorage.h"
-#include "Strata.h"
 #include "Utils.h"
 
 using std::thread;
@@ -40,7 +39,7 @@ int sample_weights_table(WeightTableRead& weights_table_r) {
 
 void assigner_thread(
     Receiver<ExampleWithScore>& updated_examples_r,
-    Strata& strata,
+    std::shared_ptr<Strata>& strata,
     Sender<pair<int, pair<int, double>>>& stats_update_s) {
     while (true) {
         auto ret = updated_examples_r.try_recv();
@@ -59,12 +58,13 @@ void assigner_thread(
         int index;
         frexp(weight, &index);
 
-        strata.send(index, example, score, version);
+        strata->send(index, example, score, version);
         stats_update_s.send(std::make_pair(index, std::make_pair( 1, static_cast<double>(weight) ) ));
     }
 }
 
-void sampler_thread(Strata& strata,
+void sampler_thread(
+    std::shared_ptr<Strata>& strata,
     Sender<pair<ExampleWithScore, int>>& sampled_examples,
     Sender<ExampleWithScore>& updated_examples,
     Model model,
@@ -88,7 +88,7 @@ void sampler_thread(Strata& strata,
         }
 
         // STEP 2: Access the queue for the sampled strata
-        std::unique_ptr<OutQueueReceiver>& receiver = strata.get_out_queue(index);
+        std::unique_ptr<OutQueueReceiver>& receiver = strata->get_out_queue(index);
 
 
         // STEP 3: Sample one example using minimum variance sampling
@@ -164,7 +164,7 @@ void sampler_thread(Strata& strata,
 
 
 void launch_assigner_threads(
-    Strata& strata,
+    std::shared_ptr<Strata>& strata,
     Receiver<ExampleWithScore>& updated_examples_r,
     Sender<pair<int, pair<int, double>>>& stats_update_s,
     int num_threads) {
@@ -176,7 +176,7 @@ void launch_assigner_threads(
 }
 
 void launch_sampler_threads(
-    Strata& strata,
+    std::shared_ptr<Strata>& strata,
     Sender<pair<ExampleWithScore, int>>& sampled_examples,
     Sender<ExampleWithScore>& updated_examples,
     Receiver<Model>& next_model,
@@ -211,11 +211,11 @@ StratifiedStorage::StratifiedStorage(
     Receiver<Model>& models,
     int channel_size,
     bool debug_mode) : positive(positive),
-    updated_examples(bounded_channel<ExampleWithScore>(channel_size, "updated-examples")) {
+    updated_examples(bounded_channel<ExampleWithScore>(channel_size, "updated-examples")),
+    strata(new Strata(num_examples, feature_size, num_examples_per_block, disk_buffer_filename)) {
     std::cerr << "debug_mode=" << debug_mode << std::endl;
 
     WeightTableRead weights_table_r;
-    Strata strata(num_examples, feature_size, num_examples_per_block, disk_buffer_filename);
 
     auto stats_update = bounded_channel<pair<int, pair<int, double>>>(5000000, "stats");
 

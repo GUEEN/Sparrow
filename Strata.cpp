@@ -127,15 +127,17 @@ std::pair<InQueueSender, OutQueueReceiver> Strata::create(int index) {
     } else {
         // Each stratum will create two threads for writing in and reading out examples
         // TODO: create a systematic approach to manage stratum threads
-        Stratum stratum(index, num_examples_per_block, disk_buffer);
+        std::shared_ptr<Stratum> stratum(new Stratum(index, num_examples_per_block, disk_buffer));
 
-        Sender<ExampleWithScore>& in_queue = stratum.in_channel.first;
-        Receiver<ExampleWithScore>& out_queue = stratum.out_channel.second;
+        Sender<ExampleWithScore>& in_queue = stratum->in_channel.first;
+        Receiver<ExampleWithScore>& out_queue = stratum->out_channel.second;
 
         //let(in_queue, out_queue) = (stratum.in_queue_s.clone(), stratum.out_queue_r.clone());
         in_queues[index] = std::make_unique<InQueueSender>(in_queue);
         out_queues[index] = std::make_unique<OutQueueReceiver>(out_queue);
             
+        stratas.push_back(stratum);
+
         return std::make_pair(in_queue, out_queue);
     }
 

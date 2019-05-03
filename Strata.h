@@ -51,6 +51,7 @@ struct Strata {
     
     std::unique_ptr<InQueueSender>& get_in_queue(int index);
     std::unique_ptr<OutQueueReceiver>& get_out_queue(int index);
+    std::vector<std::shared_ptr<Stratum>> stratas;
 
 private:
     std::pair<InQueueSender, OutQueueReceiver> create(int index);
