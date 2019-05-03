@@ -43,9 +43,10 @@ void stratum_block_read_thread(
                 // if is some
                 out_queue_s_.send(example);
             }
+        } else {
+            // send if some
+            out_queue_s_.send(out_block[index++]);
         }
-        // send if some
-        out_queue_s_.send(out_block[index++]);
     }
 }
 
@@ -88,11 +89,11 @@ Stratum::Stratum(
     Sender<ExampleWithScore>& out_queue_s = out_channel.first;
     Receiver<ExampleWithScore>& out_queue_r = out_channel.second;
 
-    std::thread thbw(stratum_block_write_thread, std::ref(num_examples_per_block), 
+    std::thread thbw(stratum_block_write_thread, std::ref(num_examples_per_block),
         std::ref(in_queue_r), std::ref(slot_s), std::ref(disk_buffer));
     thbw.detach();
 
-    std::thread thbr(stratum_block_read_thread, std::ref(in_queue_r), 
+    std::thread thbr(stratum_block_read_thread, std::ref(in_queue_r),
         std::ref(out_queue_s), std::ref(slot_r), std::ref(disk_buffer));
     thbr.detach();
 }
@@ -107,7 +108,7 @@ void Strata::send(int index, const Example& example, double score, int version) 
     if (sender.get() == nullptr) {
         this->create(index);
     }
-    sender->send({ example, { score, version } });
+    sender->send({ example,{ score, version } });
 }
 
 std::unique_ptr<InQueueSender>& Strata::get_in_queue(int index) {
@@ -135,11 +136,10 @@ std::pair<InQueueSender, OutQueueReceiver> Strata::create(int index) {
         //let(in_queue, out_queue) = (stratum.in_queue_s.clone(), stratum.out_queue_r.clone());
         in_queues[index] = std::make_unique<InQueueSender>(in_queue);
         out_queues[index] = std::make_unique<OutQueueReceiver>(out_queue);
-            
+
         stratas.push_back(stratum);
 
         return std::make_pair(in_queue, out_queue);
     }
 
 }
-
