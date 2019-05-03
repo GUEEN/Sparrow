@@ -47,14 +47,14 @@ private:
     static int get_block_size(int feature_size, int num_examples_per_block);
 
     template<class T>
-    T DiskBuffer::read_element() {
+    T read_element() {
         T value;
         file.read((char *)&value, sizeof(T));
         return value;
     }
 
     template<class T>
-    void DiskBuffer::write_element(T value) {
+    void write_element(T value) {
         file.write((char *)&value, sizeof(T));
     }
 
