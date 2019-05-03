@@ -82,7 +82,7 @@ void sampler_thread(
         int index = sample_weights_table(weights_table);
         if (index == -1) { // index is none
             // stratified storage is empty, wait for data loading
-            std::cerr << "Sampler sleeps waiting for data loading" << std::endl;
+            std::cout << "Sampler sleeps waiting for data loading" << std::endl;
             //sleep(Duration::from_millis(1000));
             continue;
         }
@@ -147,7 +147,7 @@ void sampler_thread(
 
         // STEP 4: Send the sampled example to the buffer loader
         if (sampled_example.first == false) {
-            std::cerr << "Sampling the stratum " << index << " failed because it has too few examples" << std::endl;
+            std::cout << "Sampling the stratum " << index << " failed because it has too few examples" << std::endl;
             continue;
         }
         
@@ -213,7 +213,7 @@ StratifiedStorage::StratifiedStorage(
     bool debug_mode) : positive(positive),
     updated_examples(bounded_channel<ExampleWithScore>(channel_size, "updated-examples")),
     strata(new Strata(num_examples, feature_size, num_examples_per_block, disk_buffer_filename)) {
-    std::cerr << "debug_mode=" << debug_mode << std::endl;
+    std::cout << "debug_mode=" << debug_mode << std::endl;
 
     WeightTableRead weights_table_r;
 
