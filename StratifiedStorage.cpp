@@ -12,6 +12,26 @@
 using std::thread;
 using std::pair;
 
+void weight_table_thread(
+    WeightTableRead& weights_table_w,
+    Receiver<pair<int, pair<int, double>>>& stats_update_r
+
+) {
+    std::mutex mutex;
+    while (true) {
+        auto p = stats_update_r.recv();
+        int index = p.first;
+        int count = p.second.first;
+        double weight = p.second.second;
+
+        double cur = weights_table_w[index];
+
+        std::lock_guard<std::mutex> lock(mutex);
+        weights_table_w[index] = cur + weight;        
+    }
+}
+
+
 void assigner_thread(
     Receiver<ExampleWithScore>& updated_examples_r,
     std::shared_ptr<Strata>& strata,
@@ -70,6 +90,8 @@ StratifiedStorage::StratifiedStorage(
 {
     std::cout << "debug_mode=" << debug_mode << std::endl;
 
+    std::thread thw(weight_table_thread, std::ref(weights_table_r), std::ref(stats_update.second));
+    thw.detach();
 
     launch_assigner_threads(strata, updated_examples.second, stats_update.first, num_assigners);
 

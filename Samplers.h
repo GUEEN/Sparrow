@@ -7,7 +7,7 @@
 #include "Strata.h"
 
 // !!!! temporary
-typedef const std::map<int, double> WeightTableRead;
+typedef std::map<int, double> WeightTableRead;
 
 class Samplers {
 public:
