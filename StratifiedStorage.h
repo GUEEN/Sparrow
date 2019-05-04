@@ -10,9 +10,8 @@
 #include "Tree.h"
 #include "Utils.h"
 #include "Strata.h"
+#include "Samplers.h"
 
-// !!!! temporary
-typedef const std::map<int, double> WeightTableRead;
 
 class StratifiedStorage {
 public:
@@ -45,6 +44,7 @@ private:
     std::pair<Sender<ExampleWithScore>, Receiver<ExampleWithScore>> updated_examples;
     std::shared_ptr<Strata> strata;
     std::pair<Sender< std::pair<int, std::pair<int, double>> >, Receiver< std::pair<int, std::pair<int, double>> >> stats_update;
+    WeightTableRead weights_table_r;
 
 };
 
