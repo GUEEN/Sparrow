@@ -26,7 +26,7 @@ int sample_weights_table(WeightTableRead& weights_table_r) {
         auto iter = weights_table_r.begin();
 
         std::pair<int, double> key_val(0, 0.0);
-        
+
         while (get_sign(frac) >= 0) {
             key_val = *iter;
             frac -= key_val.second;
@@ -59,7 +59,7 @@ void assigner_thread(
         frexp(weight, &index);
 
         strata->send(index, example, score, version);
-        stats_update_s.send(std::make_pair(index, std::make_pair( 1, static_cast<double>(weight) ) ));
+        stats_update_s.send(std::make_pair(index, std::make_pair(1, static_cast<double>(weight))));
     }
 }
 
@@ -116,7 +116,7 @@ void sampler_thread(
                 rcv = receiver->try_recv();
                 failed_recv++;
             }
-            
+
             if (rcv.first == false) {
                 break;
             }
@@ -137,12 +137,12 @@ void sampler_thread(
             grid += get_weight(example, updated_score);
 
             if (grid >= grid_size) {
-                sampled_example = std::make_pair(true, std::make_pair(example, std::make_pair(updated_score, model_size) ));
+                sampled_example = std::make_pair(true, std::make_pair(example, std::make_pair(updated_score, model_size)));
             }
 
-            stats_update_s.send(std::make_pair(index, std::make_pair(-1, -get_weight(example, score)) ));
+            stats_update_s.send(std::make_pair(index, std::make_pair(-1, -get_weight(example, score))));
             updated_examples.send(std::make_pair(example, std::make_pair(updated_score, model_size)));
-            num_updated ++;
+            num_updated++;
         }
 
         // STEP 4: Send the sampled example to the buffer loader
@@ -150,7 +150,7 @@ void sampler_thread(
             std::cout << "Sampling the stratum " << index << " failed because it has too few examples" << std::endl;
             continue;
         }
-        
+
         int sample_count = static_cast<int>(grid / grid_size);
 
         if (sample_count > 0) {
@@ -190,7 +190,7 @@ void launch_sampler_threads(
 
     for (int i = 0; i < num_threads; i++) {
         std::cout << "Launch sampler thread " << i << std::endl;
-        thread th(sampler_thread, std::ref(strata), std::ref(sampled_examples), 
+        thread th(sampler_thread, std::ref(strata), std::ref(sampled_examples),
             std::ref(updated_examples), model,
             std::ref(stats_update_s), std::ref(weights_table));
         th.detach();
@@ -212,16 +212,16 @@ StratifiedStorage::StratifiedStorage(
     int channel_size,
     bool debug_mode) : positive(positive),
     updated_examples(bounded_channel<ExampleWithScore>(channel_size, "updated-examples")),
-    strata(new Strata(num_examples, feature_size, num_examples_per_block, disk_buffer_filename)) {
+    strata(new Strata(num_examples, feature_size, num_examples_per_block, disk_buffer_filename)),
+    stats_update(bounded_channel<pair<int, pair<int, double>>>(5000000, "stats"))
+{
     std::cout << "debug_mode=" << debug_mode << std::endl;
 
     WeightTableRead weights_table_r;
 
-    auto stats_update = bounded_channel<pair<int, pair<int, double>>>(5000000, "stats");
-
     launch_assigner_threads(strata, updated_examples.second, stats_update.first, num_assigners);
-   // launch_sampler_threads(strata, sampled_examples, updated_examples.first, models,
-   //     stats_update.first, weights_table_r, sampling_signal, num_samplers);
+    // launch_sampler_threads(strata, sampled_examples, updated_examples.first, models,
+    //     stats_update.first, weights_table_r, sampling_signal, num_samplers);
 
     // this->counts_table_r = counts_table_r;
     // this->weights_table_r = weights_table_r;
@@ -260,7 +260,7 @@ void StratifiedStorage::init_stratified_from_file(
                 }
             }
             LabeledData<TFeature, TLabel> mapped_data(features, rexample.label);
-            updated_examples.first.send(std::make_pair(mapped_data, std::make_pair( 0.0, 0 )));
+            updated_examples.first.send(std::make_pair(mapped_data, std::make_pair(0.0, 0)));
         }
         index += batch_size;
     }

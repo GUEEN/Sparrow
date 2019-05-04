@@ -44,6 +44,7 @@ private:
     std::string positive;
     std::pair<Sender<ExampleWithScore>, Receiver<ExampleWithScore>> updated_examples;
     std::shared_ptr<Strata> strata;
+    std::pair<Sender< std::pair<int, std::pair<int, double>> >, Receiver< std::pair<int, std::pair<int, double>> >> stats_update;
 
 };
 

@@ -21,16 +21,22 @@ enum Signal { START, STOP };
 template<typename T>
 class Channel {
 public:
-    explicit Channel(const std::string& name) : name(name) {}
+    explicit Channel(const std::string& name) : name(name) {
+        std::cout << "Channel " << name << " is created" << std::endl;
+    }
+
+    ~Channel() {
+        std::cout << "Channel " << name << " is being deleted" << std::endl;
+    }
 
     void send(const T& value) {
-        std::cout << "thread " << std::this_thread::get_id() << " is sending to '" << name << "' channel" << std::endl;
+        //std::cout << "thread " << std::this_thread::get_id() << " is sending to '" << name << "' channel" << std::endl;
         std::lock_guard<std::mutex> lock(mutex);
         q.push(value);
     }
 
     T recv() {
-        std::cout << "thread " << std::this_thread::get_id() << " is recv from '" << name << "' channel" << std::endl;
+        //std::cout << "thread " << std::this_thread::get_id() << " is recv from '" << name << "' channel" << std::endl;
         while (true) {
             std::lock_guard<std::mutex> lock(mutex);
             if (q.empty()) {
@@ -39,21 +45,25 @@ public:
             }
             T value = q.front();
             q.pop();
+            if (q.empty()) {
+                std::cout << "CHANNEL IS EMPTY NOW!" << std::endl;
+            }
+
             return value;
         }
-        std::cout << "object from channel "<< name << " received!" << std::endl;
+        //std::cout << "object from channel "<< name << " received!" << std::endl;
     }
 
     std::pair<bool, T> try_recv() {
-        std::cout << "thread " << std::this_thread::get_id() << " is try_recv from '" << name << "' channel" << std::endl;
+        //std::cout << "thread " << std::this_thread::get_id() << " is try_recv from '" << name << "' channel" << std::endl;
         std::lock_guard<std::mutex> lock(mutex);
         if (q.empty()) {
-            std::cout << " [chan is empty]" << std::endl;
+            //std::cout << " [chan is empty]" << std::endl;
             return std::make_pair(false, T());
         }
         T value = q.front();
         q.pop();
-        std::cout << " [got value]" << std::endl;
+        //std::cout << " [got value]" << std::endl;
         return std::pair<bool, T>(true, value);
     }
 
@@ -84,7 +94,7 @@ public:
         chan->send(value);
     }
     ~Sender() {
-        std::cout << "Deleting last sender for channel '" << chan->get_name() << "'" << std::endl;
+        //std::cout << "Deleting last sender for channel '" << chan->get_name() << "'" << std::endl;
     }
 private:
     Sender() = delete;
