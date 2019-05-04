@@ -1,8 +1,9 @@
 #include "DiskBuffer.h"
 
 #include <cassert>
+#include <iostream>
 
-BitMap::BitMap(int size, bool all_full) {
+BitMap::BitMap(int size, bool all_full) : size(size) {
     int vec_size = (size + 31) / 32;
     int value = all_full ? 0 : -1;
 
@@ -44,7 +45,8 @@ void BitMap::mark_filled(int position) {
 
     int div = position / 32;
     int res = position % 32;
-    is_free[div] &= !(1 << res);
+
+    is_free[div] &= ~(1 << res);
 }
 
 int BitMap::log(int64_t t) {
@@ -68,7 +70,10 @@ DiskBuffer::DiskBuffer(
     capacity(capacity), size(0), filename(filename) {
     block_size = get_block_size(feature_size, num_examples_per_block);
 
-    file.open(filename, std::ios::binary);
+    file.open(filename, std::ios::binary | std::ios::in | std::ios::out | std::ios::app);
+    file.seekp(0);
+    file.seekg(0);
+
     //let file = OpenOptions::new()
     //.read(true)
     //.write(true)
@@ -106,7 +111,7 @@ int DiskBuffer::write(const std::vector<char>& data) {
 
     int offset = position * block_size;
 
-    file.seekg(offset);
+    file.seekp(offset);
     file.write(data.data(), data.size());
     file.flush();
     
@@ -132,8 +137,15 @@ std::vector<char> DiskBuffer::read(int position) {
 
 int DiskBuffer::write_block(const std::vector<ExampleInSampleSet>& data) {
     //assert(data.size() == block_size);
+    std::lock_guard<std::mutex> lock(mutex);
 
     int idx = bitmap.get_first_free();
+
+    if (idx == -1) {
+        std::cout << "No free slot available" << std::endl;
+        return -1;
+    }
+
     bitmap.mark_filled(idx);
 
     //let position = {
@@ -154,7 +166,7 @@ int DiskBuffer::write_block(const std::vector<ExampleInSampleSet>& data) {
 
     int offset = position * block_size;
 
-    file.seekg(offset);
+    file.seekp(offset);
     for (int i = 0; i < num_examples_per_block; ++i) {
         for (int j = 0; j < feature_size; ++j) {
             write_element<TFeature>(data[i].first.feature[j]);
@@ -165,12 +177,14 @@ int DiskBuffer::write_block(const std::vector<ExampleInSampleSet>& data) {
         write_element<int>(data[i].second.second);
     }
 
+    file.sync();
     file.flush();
 
     return position;
 }
 
 std::vector<ExampleInSampleSet> DiskBuffer::read_block(int position) {
+    std::lock_guard<std::mutex> lock(mutex);
     assert(position < size);
 
     int64_t offset = position * block_size;
@@ -193,8 +207,6 @@ std::vector<ExampleInSampleSet> DiskBuffer::read_block(int position) {
 
         buffer.emplace_back(ex, std::make_pair( score, version));
     }
-    position = file.tellg();
-
     bitmap.mark_free(position);
     return buffer;
 }
@@ -221,4 +233,3 @@ int DiskBuffer::get_block_size(int feature_size, int num_examples_per_block) {
     return (single_feature_size * feature_size + label_size + score_size) * num_examples_per_block;
 
 }
-

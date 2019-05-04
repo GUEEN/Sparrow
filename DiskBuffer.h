@@ -3,6 +3,7 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include <mutex>
 
 #include "LabeledData.h"
 
@@ -43,19 +44,26 @@ private:
     int size;
     std::fstream file;
     std::string filename;
+    std::mutex mutex;
 
     static int get_block_size(int feature_size, int num_examples_per_block);
 
     template<class T>
     T read_element() {
         T value;
-        file.read((char *)&value, sizeof(T));
+        char *c = new char[sizeof(T)];
+        file.read(c, sizeof(T));
+        memcpy(&value, c, sizeof(T));
+        delete[] c;
         return value;
     }
 
     template<class T>
     void write_element(T value) {
-        file.write((char *)&value, sizeof(T));
+        char *c = new char[sizeof(T)];
+        memcpy(c, &value, sizeof(T));
+        file.write(c, sizeof(T));
+        delete[] c;
     }
 
 };
