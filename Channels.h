@@ -46,7 +46,7 @@ public:
             T value = q.front();
             q.pop();
             if (q.empty()) {
-                std::cout << "CHANNEL IS EMPTY NOW!" << std::endl;
+                //std::cout << "CHANNEL IS EMPTY NOW!" << std::endl;
             }
 
             return value;
@@ -112,7 +112,7 @@ public:
         return chan->try_recv();
     }
     ~Receiver() {
-        std::cout << "Deleting last receiver for channel '" << chan->get_name() << "'" << std::endl;
+        //std::cout << "Deleting last receiver for channel '" << chan->get_name() << "'" << std::endl;
     }
 
     int len() const {

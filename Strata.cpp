@@ -101,7 +101,7 @@ Stratum::Stratum(
 
 void Strata::send(int index, const Example& example, double score, int version) {
     assert(index >= -128 && index <= 127);
-    index += 128;
+    //index += 128;
 
     lock_guard<std::mutex> lock(this->mutex);
     auto& sender = in_queues[index];

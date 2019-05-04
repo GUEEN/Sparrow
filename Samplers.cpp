@@ -64,7 +64,7 @@ void sampler_thread(
         int index = sample_weights_table(weights_table);
         if (index == -1) { // index is none
             // stratified storage is empty, wait for data loading
-            std::cout << "Sampler sleeps waiting for data loading" << std::endl;
+            //std::cout << "Sampler sleeps waiting for data loading" << std::endl;
             //sleep(Duration::from_millis(1000));
             continue;
         }
@@ -148,7 +148,7 @@ void sampler_thread(
 Samplers::Samplers(
     std::shared_ptr<Strata>& strata,
     Sender<std::pair<ExampleWithScore, int>>& sampled_examples,
-    Sender<ExampleWithScore>& updated_exampls,
+    Sender<ExampleWithScore>& updated_examples,
     Receiver<Model>& next_model,
     Sender<std::pair<int, std::pair<int, double>>>& stats_update_s,
     WeightTableRead& weights_table,

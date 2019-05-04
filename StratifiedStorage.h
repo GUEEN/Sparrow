@@ -45,6 +45,7 @@ private:
     std::shared_ptr<Strata> strata;
     std::pair<Sender< std::pair<int, std::pair<int, double>> >, Receiver< std::pair<int, std::pair<int, double>> >> stats_update;
     WeightTableRead weights_table_r;
+    std::shared_ptr<Samplers> samplers;
 
 };
 

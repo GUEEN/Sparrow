@@ -87,24 +87,22 @@ StratifiedStorage::StratifiedStorage(
     updated_examples(bounded_channel<ExampleWithScore>(channel_size, "updated-examples")),
     strata(new Strata(num_examples, feature_size, num_examples_per_block, disk_buffer_filename)),
     stats_update(bounded_channel<pair<int, pair<int, double>>>(5000000, "stats"))
-{
+ {
     std::cout << "debug_mode=" << debug_mode << std::endl;
 
     std::thread thw(weight_table_thread, std::ref(weights_table_r), std::ref(stats_update.second));
     thw.detach();
-
+    
     launch_assigner_threads(strata, updated_examples.second, stats_update.first, num_assigners);
 
-    std::shared_ptr<Samplers> samplers(new Samplers(
-        strata,
+    samplers.reset(new Samplers(strata,
         sampled_examples,
         updated_examples.first,
         models,
         stats_update.first,
         weights_table_r,
-       // sampling_signal,
-        num_samplers
-    ));
+        // sampling_signal,
+        num_samplers));
 
     samplers->run();
 
