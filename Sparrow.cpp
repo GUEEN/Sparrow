@@ -84,7 +84,7 @@ Config a1a_config = {
     0.25,
     20000,
     0.5,
-    64,
+    4, //64,
     2,
     128,
     20000,
@@ -102,105 +102,63 @@ Config a1a_config = {
     false
 };
 
-void validate(
-    std::string models_table,
-    std::string testing_filename,
-    int num_examples,
-    int num_features,
-    int batch_size,
-    std::string positive,
-    bool incremental_testing
-    ) {
-    // TODO: make eval_funcs a parameter
-    //let eval_funcs = vec![EvalFunc::AdaBoostLoss, EvalFunc::AUPRC, EvalFunc::AUROC];
-    //let bins = serde_json::from_str(&read_all(&"models/bins.json".to_string()))
-    //    .expect(&format!("Cannot parse the bins in `{}`", "models/bins.json"));
+void validate(const Model& model, const Config& config, std::vector<Bins>& bins) {
 
-    // recover bins from file 'models/bins.json'
-    std::vector<Bins> bins;
-
-    BufReader models_list = create_bufreader(models_table);
+    int num_examples = config.num_testing_examples;
 
     SerialStorage data = SerialStorage(
-        testing_filename,
+        config.testing_filename,
         num_examples,
-        num_features,
+        config.num_features,
         false,
-        positive,
+        config.positive,
         bins,
-        { 0, num_features }
-        );
+        { 0, config.num_features }
+    );
 
     std::vector<double> scores(num_examples);
     std::vector<TLabel> labels(num_examples);
 
-    int last_model_length = 0;
-
-    while (true) {
-        //if models_list.read_line(&mut line).is_err() || line.trim() == "" {
-        //    break;
-        //}
-        std::string line;
-        models_list.read_line(line);
-        if (line == "") {
-            break;
-        }
-
-        //let filepath = line.to_string().trim().to_string();
-        std::string filepath = line;
-
-        //// validate model
-        //let(ts, _, model) : (f32, usize, Model) =
-        //    serde_json::from_str(&read_all(&filepath))
-        //    .expect(&format!("Cannot parse the model in `{}`", filepath));
-
-        // recover bins and model from filepath
-        Model model;
-
-        int index = 0;
-        while (index < num_examples) {
-            std::vector<Example> batch = data.read(batch_size);
-            for (int k = last_model_length; k < model.size(); ++k) {
-                Tree tree = model[k];
-                for (int i = 0; i < batch.size(); ++i) {
-
-                    Example& example = batch[i];
-                    scores[index + i] += tree.get_leaf_prediction(example);
-                }
-            }
-            for (int i = 0; i < batch.size(); ++i) {
+    int index = 0;
+    while (index < num_examples) {
+        std::vector<Example> batch = data.read(config.batch_size);
+        for (int k = 0; k < model.size(); ++k) {
+            Tree tree = model[k];
+            for (int i = 0; i < batch.size() && i + index < num_examples; ++i) {
 
                 Example& example = batch[i];
-                labels[index + i] += example.label;
-            }
-            index += batch.size();
-        }
-
-        // output
-        std::string outputpath = filepath + "_scores";
-
-        std::vector<std::string> preds;
-        for (double score : scores) {
-            preds.push_back(std::to_string(score));
-        }
-
-        std::string content = preds[0];
-        for (int i = 1; i < preds.size(); ++i) {
-            content = content + "\n" + preds[i];
-        }
-
-        write_all(outputpath, content);
-        std::cout << "Processed " << filepath << std::endl;
-
-        // Reset scores if necessary
-        if (incremental_testing) {
-            last_model_length = model.size();
-        } else {
-            for (int i = 0; i < scores.size(); ++i) {
-                scores[i] = 0.0;
+                scores[index + i] += tree.get_leaf_prediction(example);
             }
         }
+        for (int i = 0; i < batch.size() && i + index < num_examples; ++i) {
+
+            Example& example = batch[i];
+            labels[index + i] = example.label;
+        }
+        index += batch.size();
     }
+
+    // output
+
+    int corr = 0;
+    int npos = 0;
+    int nneg = 0;
+
+    for (int i = 0; i < num_examples; ++i) {
+        if (get_sign(scores[i]) == labels[i]) {
+            ++corr;
+        }
+        if (labels[i] == 1) {
+            npos++;
+        } else {
+            nneg++;
+        }
+
+    }
+
+    std::cout << "We have " << num_examples << "testing examples" << std::endl;
+    std::cout << "The model correctly predicts" << corr << " of them" << std::endl;
+    
 }
 
 void training(const Config& config) {
@@ -231,11 +189,6 @@ void training(const Config& config) {
 
     std::vector<Bins> bins = create_bins(
         config.max_sample_size, config.max_bin_size, config.range, serial_training_loader);
-    //{
-    //    let mut file_buffer = create_bufwriter(&"models/bins.json".to_string());
-    //    let json = serde_json::to_string(&bins).expect("Bins cannot be serialized.");
-    //    file_buffer.write(json.as_ref()).unwrap();
-    //}
 
     std::vector<Example> validation_set1;
     std::vector<Example> validation_set2;
@@ -295,6 +248,13 @@ void training(const Config& config) {
     std::cout << "Start training" << std::endl;
     booster.training(validation_set1, validation_set2);
     std::cout << "Training complete" << std::endl;
+
+    std::cout << "Testing our model" << std::endl;
+
+    Model model = booster.get_model();
+
+    validate(model, config, bins);
+
 }
 
 
