@@ -13,10 +13,15 @@ Tree::Tree(const Tree& tree) {
     leaf_depth = tree.leaf_depth;
 }
 
-Tree::Tree(int max_leaves) : max_leaves(max_leaves), num_leaves(0), left_child(2 * max_leaves),
-right_child(2 * max_leaves), threshold(2 * max_leaves), leaf_value(2 * max_leaves),
-leaf_depth(2 * max_leaves) {
+Tree::Tree(int max_leaves) : max_leaves(max_leaves), num_leaves(0) {
+    left_child.reserve(2 * max_leaves);
+    right_child.reserve(2 * max_leaves);
+    split_feature.reserve(2 * max_leaves);
+    threshold.reserve(2 * max_leaves);
+    leaf_value.reserve(2 * max_leaves);
+    leaf_depth.reserve(2 * max_leaves);
 
+    add_new_node(0.0, 0);
 }
 
 void Tree::release() {
@@ -51,12 +56,13 @@ std::pair<int, double> Tree::get_leaf_index_prediction(const Example& data) cons
 
     int sfeature = split_feature[node];
 
-    while (sfeature == split_feature[node]) {
+    while (sfeature != -1) {
         if (feature[sfeature] <= threshold[node]) {
             node = left_child[node];
         } else {
             node = right_child[node];
         }
+        sfeature = split_feature[node];
     }
     return std::make_pair(node, leaf_value[node]);
 }
