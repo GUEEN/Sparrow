@@ -156,8 +156,8 @@ void validate(const Model& model, const Config& config, std::vector<Bins>& bins)
 
     }
 
-    std::cout << "We have " << num_examples << "testing examples" << std::endl;
-    std::cout << "The model correctly predicts" << corr << " of them" << std::endl;
+    std::cout << "We have " << num_examples << " testing examples" << std::endl;
+    std::cout << "The model correctly predicts " << corr << " of them" << std::endl;
     
 }
 

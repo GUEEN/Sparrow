@@ -151,7 +151,7 @@ std::shared_ptr<Tree> Learner::update(
         total_weight += ex.second.first;
     }
 
-    typedef std::vector<std::vector<std::vector<double>>> trivector;
+    typedef std::vector<std::vector<std::vector<double>>> trivector; // must be of shape 2 * 3 * NUM_RULES
     typedef std::tuple<int, double, std::pair<Example, trivector>> Triple;
 
     std::vector<std::tuple<int, double, std::pair<Example, trivector>>> Data;
@@ -205,7 +205,7 @@ std::shared_ptr<Tree> Learner::update(
     std::shared_ptr<TreeNode> valid_tree_node; // = None;
 
     for (int index = 0; index < num_candid; ++index) { // Splitting node candidate index
-        if (data_by_node.find(index) != data_by_node.end()) {
+        if (data_by_node.find(index) == data_by_node.end()) {
             continue;
         }
 
@@ -223,7 +223,7 @@ std::shared_ptr<Tree> Learner::update(
 
             // <Split, NodeId, RuleId, stats, LeftOrRight>
             // the last element of is for the examples that are larger than all split values
-            std::vector<trivector> bin_accum_vals(bin.len() + 1);
+            std::vector<trivector> bin_accum_vals(bin.len() + 1, trivector(2, std::vector<std::vector<double>>(3, std::vector<double>(2))));
 
             for (const std::pair<Example, trivector>& pp : data) {
                 Example example = pp.first;

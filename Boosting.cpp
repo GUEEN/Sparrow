@@ -58,7 +58,7 @@ void Boosting::training(
     bool is_gamma_significant = true;
    
 
-    while (is_gamma_significant && (num_iterations <= 0 || model.size() < num_iterations)) {
+    while (is_gamma_significant && (iteration <= num_iterations || model.size() < num_iterations)) {
 
         std::vector<ExampleInSampleSet> data = training_loader.get_next_batch_and_update(true, model);
         int batch_size = data.size();
