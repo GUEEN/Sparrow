@@ -15,6 +15,7 @@
 #include <array>
 
 #include "LabeledData.h"
+#include "ThreadManager.h"
 
 enum Signal { START, STOP };
 
@@ -37,7 +38,8 @@ public:
 
     T recv() {
         //std::cout << "thread " << std::this_thread::get_id() << " is recv from '" << name << "' channel" << std::endl;
-        while (true) {
+        std::thread::id id = std::this_thread::get_id();
+        while (ThreadManager::continue_run(id)) {
             std::lock_guard<std::mutex> lock(mutex);
             if (q.empty()) {
                 std::this_thread::yield();

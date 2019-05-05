@@ -294,6 +294,7 @@ void training(const Config& config) {
 
     std::cout << "Start training" << std::endl;
     booster.training(validation_set1, validation_set2);
+    std::cout << "Training complete" << std::endl;
 }
 
 

@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "Utils.h"
+#include "ThreadManager.h"
 
 Boosting::Boosting(
     int num_iterations,
@@ -41,7 +42,6 @@ void Boosting::training(
     std::vector<Example> validate_set1,
     std::vector<Example> validate_set2
     ) {
-    std::cout << "Start training" << std::endl;
 
     std::vector<double> validate_w1;
     std::vector<double> validate_w2;
@@ -87,8 +87,9 @@ void Boosting::training(
         ++iteration;
     }
 
-    std::cout << "Training is finished. Model length: " << model.size() << ". Is gamma significant?" <<
-        learner.is_gamma_significant() << ".\n";
+    std::cout << "Training is finished. Model length: " << model.size() << ". Is gamma significant? " <<
+        learner.is_gamma_significant()  << std::endl;
+    ThreadManager::stop_all();
 }
 
 void Boosting::try_send_model() {

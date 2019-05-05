@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Utils.h"
+#include "ThreadManager.h"
 
 
 void fill_buffer(
@@ -14,7 +15,7 @@ void fill_buffer(
     Receiver<std::pair<ExampleWithScore, int>>& gather_new_sample
     ) {
 
-    std::cout << "Start filling the alternate buffer" << std::endl;
+    //std::cout << "Start filling the alternate buffer" << std::endl;
 
     //new_sample_buffer.reserve(new_sample_capacity);
 
@@ -34,9 +35,12 @@ void gatherer_thread(
     int new_sample_capacity,
     std::vector<ExampleWithScore>& new_sample_buffer,
     Receiver<std::pair<ExampleWithScore, int>>& gather_new_sample) {
-    while (true) {
+
+    std::thread::id id = std::this_thread::get_id();
+    while (ThreadManager::continue_run(id)) {
         fill_buffer(new_sample_capacity, new_sample_buffer, gather_new_sample);
     }
+    ThreadManager::done(id);
 }
 
 Gatherer::Gatherer(
@@ -57,6 +61,7 @@ void Gatherer::run(bool blocking) {
     } else {
         std::cout << "Starting non-blocking gatherer" << std::endl;
         std::thread th(gatherer_thread, new_sample_capacity, std::ref(new_sample_buffer), std::ref(gather_new_sample));
+        ThreadManager::add(th.get_id());
         th.detach();
     }
 }

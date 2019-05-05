@@ -1,9 +1,10 @@
 #include "Samplers.h"
 #include "Utils.h"
+#include "ThreadManager.h"
 
 #include <thread>
 #include <iostream>
-
+#include <chrono>
 
 int sample_weights_table(WeightTableRead weights_table_r) {
     double sum_of_weights = 0.0;
@@ -19,7 +20,7 @@ int sample_weights_table(WeightTableRead weights_table_r) {
 
         std::pair<int, double> key_val(0, 0.0);
 
-        while (get_sign(frac) >= 0) {
+        while (get_sign(frac) >= 0 && iter != weights_table_r.end()) {
             key_val = *iter;
             frac -= key_val.second;
             ++iter;
@@ -33,7 +34,9 @@ void sampler_model_thread(
     std::shared_ptr<Model>& model
 ) {
     std::mutex mutex;
-    while (true) {
+    std::thread::id id = std::this_thread::get_id();
+
+    while (ThreadManager::continue_run(id)) {
 
         Model new_model = next_model.recv();
 
@@ -42,6 +45,8 @@ void sampler_model_thread(
         model.reset(new Model(next_model.recv()));
         std::cout << "Sampler model update" << std::endl;
     }
+
+    ThreadManager::done(id);
 }
 
 
@@ -59,13 +64,14 @@ void sampler_thread(
     int num_updated = 0;
     int num_sampled = 0;
 
-    while (true) {
+    std::thread::id id = std::this_thread::get_id();
+    while (ThreadManager::continue_run(id)) {
         // STEP 1: Sample which strata to get next sample
         int index = sample_weights_table(weights_table);
         if (index == -1) { // index is none
             // stratified storage is empty, wait for data loading
             //std::cout << "Sampler sleeps waiting for data loading" << std::endl;
-            //sleep(Duration::from_millis(1000));
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             continue;
         }
 
@@ -89,7 +95,7 @@ void sampler_thread(
 
         std::pair<bool, ExampleWithScore> sampled_example(false, ExampleWithScore());
 
-        while (sampled_example.first == false) {
+        while (sampled_example.first == false && ThreadManager::continue_run(id)) {
 
             int failed_recv = 0;
             std::pair<bool, ExampleWithScore> rcv(false, ExampleWithScore());
@@ -129,7 +135,7 @@ void sampler_thread(
 
         // STEP 4: Send the sampled example to the buffer loader
         if (sampled_example.first == false) {
-            std::cout << "Sampling the stratum " << index << " failed because it has too few examples" << std::endl;
+            //std::cout << "Sampling the stratum " << index << " failed because it has too few examples" << std::endl;
             continue;
         }
 
@@ -140,8 +146,9 @@ void sampler_thread(
             grid -= grid_size * static_cast<double>(sample_count);
             num_sampled += sample_count;
         }
-
     }
+
+    ThreadManager::done(id);
 }
 
 
@@ -161,6 +168,7 @@ Samplers::Samplers(
 void Samplers::run() {
 
     std::thread thm(sampler_model_thread, std::ref(next_model), std::ref(model));
+    ThreadManager::add(thm.get_id());
     thm.detach();
     
     //Signal signal = sampling_signal;
@@ -174,6 +182,7 @@ void Samplers::run() {
             std::ref(updated_examples), std::ref(model),
             std::ref(stats_update_s), std::ref(weights_table));
 
+        ThreadManager::add(th.get_id());
         th.detach();
     }
     
