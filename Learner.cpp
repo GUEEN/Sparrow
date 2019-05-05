@@ -58,7 +58,7 @@ void Learner::reset_trackers() {
 }
 
 void Learner::setup(int index) {
-    bool is_cleared;
+    bool is_cleared = false;
     while (index >= is_active.size()) {
         if (is_active.size() == index) {
             is_cleared = true;

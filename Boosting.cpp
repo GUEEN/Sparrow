@@ -32,6 +32,7 @@ Boosting::Boosting(
 
     model.push_back(base_tree);
 
+    try_send_model();
     //BufWriter persist_file_buffer(&String::from("model.json")));
 }
 
@@ -49,7 +50,7 @@ void Boosting::training(
         validate_w1.push_back(get_weight(example, model[0].get_leaf_prediction(example)));
     }
     for (int i = 0; i < validate_set2.size(); ++i) {
-        const Example& example = validate_set1[i];
+        const Example& example = validate_set2[i];
         validate_w2.push_back(get_weight(example, model[0].get_leaf_prediction(example)));
     }
     

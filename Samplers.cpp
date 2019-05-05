@@ -5,7 +5,7 @@
 #include <iostream>
 
 
-int sample_weights_table(WeightTableRead& weights_table_r) {
+int sample_weights_table(WeightTableRead weights_table_r) {
     double sum_of_weights = 0.0;
     for (const auto& p : weights_table_r) {
         sum_of_weights += p.second;
