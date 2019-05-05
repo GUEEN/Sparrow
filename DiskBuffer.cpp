@@ -2,6 +2,26 @@
 
 #include <cassert>
 #include <iostream>
+#include <cstring>
+
+template<class T>
+T read_element(std::fstream& f) {
+    T value;
+   /* char *c = new char[sizeof(T)];
+    f.read(c, sizeof(T));
+    memcpy(&value, c, sizeof(T));
+    delete[] c;*/
+    f.read((char *)&value, sizeof(T));
+    return value;
+}
+
+template<class T>
+void write_element(std::fstream& f, T value) {
+    char *c = new char[sizeof(T)];
+    memcpy(c, &value, sizeof(T));
+    f.write(c, sizeof(T));
+    delete[] c;
+}
 
 BitMap::BitMap(int size, bool all_full) : size(size) {
     int vec_size = (size + 31) / 32;
@@ -169,12 +189,12 @@ int DiskBuffer::write_block(const std::vector<ExampleInSampleSet>& data) {
     file.seekp(offset);
     for (int i = 0; i < num_examples_per_block; ++i) {
         for (int j = 0; j < feature_size; ++j) {
-            write_element<TFeature>(data[i].first.feature[j]);
+            write_element<TFeature>(file, data[i].first.feature[j]);
         }
-        write_element<TLabel>(data[i].first.label);
+        write_element<TLabel>(file, data[i].first.label);
 
-        write_element<double>(data[i].second.first);
-        write_element<int>(data[i].second.second);
+        write_element<double>(file, data[i].second.first);
+        write_element<int>(file, data[i].second.second);
     }
 
     file.sync();
@@ -196,12 +216,12 @@ std::vector<ExampleInSampleSet> DiskBuffer::read_block(int position) {
     for (int i = 0; i < num_examples_per_block; ++i) {
         std::vector<TFeature> features(feature_size);
         for (int j = 0; j < feature_size; ++j) {
-            features[j] = read_element<TFeature>();
+            features[j] = read_element<TFeature>(file);
         }
-        int label = read_element<TLabel>();
+        int label = read_element<TLabel>(file);
         
-        double score = read_element<double>();
-        int version = read_element<int>();
+        double score = read_element<double>(file);
+        int version = read_element<int>(file);
 
         Example ex(features, label);
 
@@ -233,3 +253,4 @@ int DiskBuffer::get_block_size(int feature_size, int num_examples_per_block) {
     return (single_feature_size * feature_size + label_size + score_size) * num_examples_per_block;
 
 }
+

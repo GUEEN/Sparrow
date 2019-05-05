@@ -46,25 +46,6 @@ private:
     std::string filename;
     std::mutex mutex;
 
-    static int get_block_size(int feature_size, int num_examples_per_block);
-
-    template<class T>
-    T read_element() {
-        T value;
-        char *c = new char[sizeof(T)];
-        file.read(c, sizeof(T));
-        memcpy(&value, c, sizeof(T));
-        delete[] c;
-        return value;
-    }
-
-    template<class T>
-    void write_element(T value) {
-        char *c = new char[sizeof(T)];
-        memcpy(c, &value, sizeof(T));
-        file.write(c, sizeof(T));
-        delete[] c;
-    }
-
+    static int get_block_size(int feature_size, int num_examples_per_block); 
 };
 
