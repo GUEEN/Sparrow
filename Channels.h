@@ -22,7 +22,8 @@ enum Signal { START, STOP };
 template<typename T>
 class Channel {
 public:
-    explicit Channel(const std::string& name) : name(name) {
+
+    Channel(const std::string& name, int size) : name(name), size(size) {
         std::cout << "Channel " << name << " is created" << std::endl;
     }
 
@@ -32,8 +33,20 @@ public:
 
     void send(const T& value) {
         //std::cout << "thread " << std::this_thread::get_id() << " is sending to '" << name << "' channel" << std::endl;
-        std::lock_guard<std::mutex> lock(mutex);
-        q.push(value);
+        if (size == 0 || q.size() < size) {
+            std::lock_guard<std::mutex> lock(mutex);
+            q.push(value);
+            return;
+        } 
+        std::thread::id id = std::this_thread::get_id();
+        while (ThreadManager::continue_run(id) && q.size() >= size) {
+            std::this_thread::yield();
+            continue;
+        }
+        if (ThreadManager::continue_run(id)) {
+            std::lock_guard<std::mutex> lock(mutex);
+            q.push(value);
+        }
     }
 
     T recv() {
@@ -82,6 +95,7 @@ private:
     std::string name;
     std::mutex mutex;
     std::queue<T> q;
+    const int size;
 
     Channel() = delete;
     Channel(const Channel&) = delete;
@@ -128,14 +142,14 @@ private:
 
 template<typename T>
 std::pair<Sender<T>, Receiver<T>> unbounded_channel(const std::string& name) {
-    std::shared_ptr<Channel<T>> chan(new Channel<T>(name));
+    std::shared_ptr<Channel<T>> chan(new Channel<T>(name, 0));
     return std::make_pair(Sender<T>(chan), Receiver<T>(chan));
 }
 
 template<typename T>
 std::pair<Sender<T>, Receiver<T>> bounded_channel(int size, const std::string& name) {
     // TODO: make channel actually bounded
-    std::shared_ptr<Channel<T>> chan(new Channel<T>(name));
+    std::shared_ptr<Channel<T>> chan(new Channel<T>(name, size));
     return std::make_pair(Sender<T>(chan), Receiver<T>(chan));
 }
 
