@@ -20,7 +20,7 @@ struct Gatherer {
     void run(bool blocking);
 
     Receiver<std::pair<ExampleWithScore, int>> gather_new_sample;
-    std::vector<ExampleWithScore> new_sample_buffer;
+    std::vector<ExampleWithScore>& new_sample_buffer;
     int new_sample_capacity;
 };
 
