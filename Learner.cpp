@@ -275,6 +275,7 @@ std::shared_ptr<Tree> Learner::update(
                         valid_weak_rule.reset(new TreeNode({ index, rule_idx, i + range_start, j,
                             base_pred * RULES[rule_idx][0], base_pred * RULES[rule_idx][1],
                             rho_gamma, _weak_rules_score_, _sum_c_, _sum_c_squared_, bound, count, false }));
+                        tree_node = valid_weak_rule;
                     }
                 }
             }
@@ -282,7 +283,7 @@ std::shared_ptr<Tree> Learner::update(
             // }).find_any(| t | t.is_some()).unwrap_or(None)
         }
 
-        if (valid_tree_node && tree_node) {
+        if (!valid_tree_node && tree_node) {
             valid_tree_node = tree_node;
             break;
         }
