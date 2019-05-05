@@ -79,10 +79,13 @@ void Boosting::training(
             }
 
             model.push_back(*new_rule);
-            try_send_model();
-
             is_gamma_significant = learner.is_gamma_significant();
-            learner.reset_all();
+
+            if (is_gamma_significant) {
+
+                try_send_model();
+                learner.reset_all();
+            }
         }
         ++iteration;
     }
@@ -94,4 +97,8 @@ void Boosting::training(
 
 void Boosting::try_send_model() {
     sampler_channel_s.send(model);
+}
+
+Model Boosting::get_model() const {
+    return model;
 }

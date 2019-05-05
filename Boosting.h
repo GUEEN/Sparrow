@@ -23,6 +23,8 @@ public:
         std::vector<Example> validate_set1,
         std::vector<Example> validate_set2);
 
+    Model get_model() const;
+
 private:
 
     int num_iterations;
