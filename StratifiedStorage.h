@@ -44,7 +44,7 @@ private:
     std::pair<Sender<ExampleWithScore>, Receiver<ExampleWithScore>> updated_examples;
     std::shared_ptr<Strata> strata;
     std::pair<Sender< std::pair<int, std::pair<int, double>> >, Receiver< std::pair<int, std::pair<int, double>> >> stats_update;
-    WeightTableRead weights_table_r;
+    WeightsTable weights_table;
     std::shared_ptr<Samplers> samplers;
     std::shared_ptr<Model> model;
 

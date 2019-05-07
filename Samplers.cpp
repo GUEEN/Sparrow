@@ -6,29 +6,29 @@
 #include <iostream>
 #include <chrono>
 
-int sample_weights_table(WeightTableRead weights_table_r) {
+int sample_weights_table(const WeightsTable& weights_table) {
+    auto snapshot = weights_table.get_data();
     double sum_of_weights = 0.0;
-    for (const auto& p : weights_table_r) {
+    for (const auto& p : snapshot) {
         sum_of_weights += p.second;
     }
 
     if (get_sign(sum_of_weights) == 0) {
         return -1;
-    } else {
-        double frac = (static_cast<double>(rand()) / (RAND_MAX)) * sum_of_weights;
-        auto iter = weights_table_r.begin();
-
-        std::pair<int, double> key_val(0, 0.0);
-
-        while (get_sign(frac) >= 0 && iter != weights_table_r.end()) {
-            key_val = *iter;
-            frac -= key_val.second;
-            ++iter;
-        }
-        return key_val.first;
     }
-}
 
+    double frac = (static_cast<double>(rand()) / (RAND_MAX)) * sum_of_weights;
+    auto iter = snapshot.begin();
+
+    std::pair<int, double> key_val(0, 0.0);
+
+    while (get_sign(frac) >= 0 && iter != snapshot.end()) {
+      key_val = *iter;
+      frac -= key_val.second;
+      ++iter;
+    }
+    return key_val.first;
+}
 
 void sampler_thread(
     std::shared_ptr<Strata>& strata,
@@ -36,7 +36,7 @@ void sampler_thread(
     Sender<std::pair<ExampleWithScore, int>>& sampled_examples,
     Sender<ExampleWithScore>& updated_examples,
     Sender<std::pair<int, std::pair<int, double>>>& stats_update_s,
-    WeightTableRead& weights_table
+    const WeightsTable& weights_table
 ) {
 
     std::map<int, double> grids;
@@ -135,7 +135,7 @@ Samplers::Samplers(
     Sender<ExampleWithScore>& updated_examples,
     std::shared_ptr<Model>& model,
     Sender<std::pair<int, std::pair<int, double>>>& stats_update_s,
-    WeightTableRead& weights_table,
+    const WeightsTable& weights_table,
     //Receiver<Signal>& sampling_signal_channel,
     int num_threads) : strata(strata), sampled_examples(sampled_examples), updated_examples(updated_examples),
     model(model), sampling_signal(Signal::STOP), stats_update_s(stats_update_s),

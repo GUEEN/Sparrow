@@ -22,7 +22,6 @@ void stratum_block_read_thread(
     std::unique_ptr<DiskBuffer>& disk_buffer) {
     std::vector<ExampleInSampleSet> out_block;
     int index = 0;
-    std::thread::id id = std::this_thread::get_id();
     while (ThreadManager::continue_run) {
         if (index >= out_block.size()) {
             std::pair<bool, int> block_index_try = slot_r.try_recv();

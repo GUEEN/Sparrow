@@ -13,23 +13,20 @@
 using std::thread;
 using std::pair;
 
-void weight_table_thread(
-    WeightTableRead& weights_table_w,
-    Receiver<pair<int, pair<int, double>>>& stats_update_r
-) {
-    std::mutex mutex;
+void weight_table_thread(WeightsTable& weights_table, Receiver<pair<int, pair<int, double>>>& stats_update_r) {
     while (ThreadManager::continue_run) {
-        auto p = stats_update_r.recv();
+        auto recv = stats_update_r.try_recv();
+        if (!recv.first) {
+            std::this_thread::yield();
+            continue;
+        }
+
+        const auto& p = recv.second;
         int index = p.first;
         double weight = p.second.second;
-
-        double cur = weights_table_w[index];
-
-        std::lock_guard<std::mutex> lock(mutex);
-        weights_table_w[index] = cur + weight;
+        weights_table.incr(index, weight);
     }
 }
-
 
 void assigner_thread(
     Receiver<ExampleWithScore>& updated_examples_r,
@@ -92,7 +89,7 @@ StratifiedStorage::StratifiedStorage(
  {
     std::cout << "debug_mode=" << debug_mode << std::endl;
 
-    std::thread thw(weight_table_thread, std::ref(weights_table_r), std::ref(stats_update.second));
+    std::thread thw(weight_table_thread, std::ref(weights_table), std::ref(stats_update.second));
     thw.detach();
 
     launch_assigner_threads(strata, updated_examples.second, stats_update.first, num_assigners);
@@ -102,7 +99,7 @@ StratifiedStorage::StratifiedStorage(
         updated_examples.first,
         model,
         stats_update.first,
-        weights_table_r,
+        weights_table,
         // sampling_signal,
         num_samplers));
 
