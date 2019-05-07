@@ -84,7 +84,7 @@ std::vector<std::string> read_k_lines(BufReader& reader, int k) {
 }
 
 std::vector<Example> read_k_labeled_data_from_binary_file(
-    BufReader& reader, int k, int data_size) {
+    BufReader& reader, int k, int) {
 
     std::vector<Example> data;
 
@@ -95,8 +95,9 @@ std::vector<Example> read_k_labeled_data_from_binary_file(
     return data;
 }
 
-int write_to_binary_file(BufWriter& writer, const Example& data) {
+int write_to_binary_file(BufWriter&, const Example&) {
     int total_bytes = 0;
+    assert(false);
     // TODO
     return total_bytes;
 }

@@ -67,6 +67,7 @@ public:
             return value;
         }
         //std::cout << "object from channel "<< name << " received!" << std::endl;
+        return T();
     }
 
     std::pair<bool, T> try_recv() {

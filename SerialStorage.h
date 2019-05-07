@@ -17,7 +17,6 @@ public:
         const std::string& filename,
         int size,
         int feature_size,
-        bool one_pass,
         const std::string& positive,
         const std::vector<Bins>& bins,
         Range range

@@ -131,7 +131,6 @@ void StratifiedStorage::init_stratified_from_file(
         filename,
         size,
         feature_size,
-        true,
         positive,
         std::vector<Bins>(),
         range

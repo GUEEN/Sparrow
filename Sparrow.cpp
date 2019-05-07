@@ -88,7 +88,6 @@ void training(const Config& config) {
         config.training_filename,
         config.num_examples,
         config.num_features,
-        true,
         config.positive,
         std::vector<Bins>(),
         config.range
@@ -185,9 +184,8 @@ int main() {
 
     std::string path = "configs/config_a1a.yaml";
 
-    Config a1a_config = read_config(path);
-    training(a1a_config);
-
+    Config config = read_config(path);
+    training(config);
 
     return 0;
 }
