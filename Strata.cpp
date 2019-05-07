@@ -23,7 +23,7 @@ void stratum_block_read_thread(
     std::vector<ExampleInSampleSet> out_block;
     int index = 0;
     std::thread::id id = std::this_thread::get_id();
-    while (ThreadManager::continue_run(id)) {
+    while (ThreadManager::continue_run) {
         if (index >= out_block.size()) {
             std::pair<bool, int> block_index_try = slot_r.try_recv();
             if (block_index_try.first) {
@@ -48,15 +48,13 @@ void stratum_block_read_thread(
             out_queue_s_.send(out_block[index++]);
         }
     }
-    ThreadManager::done(id);
 }
 
 void stratum_block_write_thread(int num_examples_per_block,
     Receiver<ExampleWithScore>& in_queue_r_,
     Sender<int>& slot_s,
     std::unique_ptr<DiskBuffer>& disk_buffer) {
-    std::thread::id id = std::this_thread::get_id();
-    while (ThreadManager::continue_run(id)) {
+    while (ThreadManager::continue_run) {
         if (in_queue_r_.len() >= num_examples_per_block) {
 
             std::vector<ExampleWithScore> in_block;
@@ -70,7 +68,6 @@ void stratum_block_write_thread(int num_examples_per_block,
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     }
-    ThreadManager::done(id);
 }
 
 
@@ -93,12 +90,10 @@ Stratum::Stratum(
 
     std::thread thbw(stratum_block_write_thread, std::ref(num_examples_per_block),
         std::ref(in_queue_r), std::ref(slot_s), std::ref(disk_buffer));
-    ThreadManager::add(thbw.get_id());
     thbw.detach();
 
     std::thread thbr(stratum_block_read_thread, std::ref(in_queue_r),
         std::ref(out_queue_s), std::ref(slot_r), std::ref(disk_buffer));
-    ThreadManager::add(thbr.get_id());
     thbr.detach();
 }
 

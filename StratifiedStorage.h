@@ -49,5 +49,3 @@ private:
     std::shared_ptr<Model> model;
 
 };
-
-int sample_weights_table(WeightTableRead& weight_table_r);

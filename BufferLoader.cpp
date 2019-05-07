@@ -13,7 +13,7 @@ void fill_buffer(
     int new_sample_capacity,
     std::vector<ExampleWithScore>& new_sample_buffer,
     Receiver<std::pair<ExampleWithScore, int>>& gather_new_sample
-    ) {
+) {
 
     //std::cout << "Start filling the alternate buffer" << std::endl;
 
@@ -27,7 +27,7 @@ void fill_buffer(
         while (new_sample_buffer.size() < new_sample_capacity && c > 0) {
             new_sample_buffer.emplace_back(example);
             c--;
-        }        
+        }
     }
 }
 
@@ -36,19 +36,17 @@ void gatherer_thread(
     std::vector<ExampleWithScore>& new_sample_buffer,
     Receiver<std::pair<ExampleWithScore, int>>& gather_new_sample) {
 
-    std::thread::id id = std::this_thread::get_id();
-    while (ThreadManager::continue_run(id)) {
+    while (ThreadManager::continue_run) {
         fill_buffer(new_sample_capacity, new_sample_buffer, gather_new_sample);
     }
-    ThreadManager::done(id);
 }
 
 Gatherer::Gatherer(
-        Receiver<std::pair<ExampleWithScore, int>>& gather_new_sample,
-        std::vector<ExampleWithScore>& new_sample_buffer,
-        int new_sample_capacity
-        ) : gather_new_sample(gather_new_sample), new_sample_buffer(new_sample_buffer),
-            new_sample_capacity(new_sample_capacity) { }
+    Receiver<std::pair<ExampleWithScore, int>>& gather_new_sample,
+    std::vector<ExampleWithScore>& new_sample_buffer,
+    int new_sample_capacity
+) : gather_new_sample(gather_new_sample), new_sample_buffer(new_sample_buffer),
+new_sample_capacity(new_sample_capacity) { }
 
 /// Start the gatherer.
 ///
@@ -58,10 +56,10 @@ void Gatherer::run(bool blocking) {
     if (blocking) {
         std::cout << "Starting blocking gatherer" << std::endl;
         fill_buffer(new_sample_capacity, new_sample_buffer, gather_new_sample);
-    } else {
+    }
+    else {
         std::cout << "Starting non-blocking gatherer" << std::endl;
         std::thread th(gatherer_thread, new_sample_capacity, std::ref(new_sample_buffer), std::ref(gather_new_sample));
-        ThreadManager::add(th.get_id());
         th.detach();
     }
 }
@@ -74,12 +72,12 @@ BufferLoader::BufferLoader(
     Sender<Signal>& sampling_signal_channel,
     bool serial_sampling,
     bool init_block,
-    double min_ess): size(size), batch_size(batch_size), 
+    double min_ess) : size(size), batch_size(batch_size),
     gather_new_sample(gather_new_sample),
     sampling_signal_channel(sampling_signal_channel),
     serial_sampling(serial_sampling),
     gatherer(gather_new_sample, new_examples, size),
-    ess(0.0), min_ess(min_ess), curr_example(0)  {
+    ess(0.0), min_ess(min_ess), curr_example(0) {
     num_batch = (size + batch_size - 1) / batch_size;
     if (serial_sampling == false) {
         sampling_signal_channel.send(Signal::START);
@@ -87,7 +85,7 @@ BufferLoader::BufferLoader(
     if (init_block) {
         force_switch();
     }
-    if (serial_sampling == false){
+    if (serial_sampling == false) {
         gatherer.run(false);
     }
 }
@@ -141,7 +139,7 @@ void BufferLoader::force_switch() {
 bool BufferLoader::try_switch() {
 
     bool switched = false;
-    
+
     if (!new_examples.empty()) {
         examples.clear();
         for (const ExampleInSampleSet& ex : new_examples) {

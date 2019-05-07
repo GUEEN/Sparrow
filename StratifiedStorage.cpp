@@ -18,9 +18,7 @@ void weight_table_thread(
     Receiver<pair<int, pair<int, double>>>& stats_update_r
 ) {
     std::mutex mutex;
-    std::thread::id id = std::this_thread::get_id();
-
-    while (ThreadManager::continue_run(id)) {
+    while (ThreadManager::continue_run) {
         auto p = stats_update_r.recv();
         int index = p.first;
         double weight = p.second.second;
@@ -28,9 +26,8 @@ void weight_table_thread(
         double cur = weights_table_w[index];
 
         std::lock_guard<std::mutex> lock(mutex);
-        weights_table_w[index] = cur + weight;        
+        weights_table_w[index] = cur + weight;
     }
-    ThreadManager::done(id);
 }
 
 
@@ -39,8 +36,7 @@ void assigner_thread(
     std::shared_ptr<Strata>& strata,
     Sender<pair<int, pair<int, double>>>& stats_update_s) {
 
-    std::thread::id id = std::this_thread::get_id();
-    while (ThreadManager::continue_run(id)) {
+    while (ThreadManager::continue_run) {
         auto ret = updated_examples_r.try_recv();
         if (!ret.first) {
             //break;
@@ -61,7 +57,6 @@ void assigner_thread(
         strata->send(index, example, score, version);
         stats_update_s.send(std::make_pair(index, std::make_pair(1, static_cast<double>(weight))));
     }
-    ThreadManager::done(id);
 }
 
 void launch_assigner_threads(
@@ -72,7 +67,6 @@ void launch_assigner_threads(
     for (int i = 0; i < num_threads; i++) {
         std::cout << "Launch assigner thread " << i << std::endl;
         thread th(assigner_thread, std::ref(updated_examples_r), std::ref(strata), std::ref(stats_update_s));
-        ThreadManager::add(th.get_id());
         th.detach();
     }
 }
@@ -99,9 +93,8 @@ StratifiedStorage::StratifiedStorage(
     std::cout << "debug_mode=" << debug_mode << std::endl;
 
     std::thread thw(weight_table_thread, std::ref(weights_table_r), std::ref(stats_update.second));
-    ThreadManager::add(thw.get_id());
     thw.detach();
-    
+
     launch_assigner_threads(strata, updated_examples.second, stats_update.first, num_assigners);
 
     samplers.reset(new Samplers(strata,

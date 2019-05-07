@@ -44,8 +44,7 @@ void sampler_thread(
     int num_updated = 0;
     int num_sampled = 0;
 
-    std::thread::id id = std::this_thread::get_id();
-    while (ThreadManager::continue_run(id)) {
+    while (ThreadManager::continue_run) {
         // STEP 1: Sample which strata to get next sample
         int index = sample_weights_table(weights_table);
         if (index == -1) { // index is none
@@ -75,7 +74,7 @@ void sampler_thread(
 
         std::pair<bool, ExampleWithScore> sampled_example(false, ExampleWithScore());
 
-        while (sampled_example.first == false && ThreadManager::continue_run(id)) {
+        while (sampled_example.first == false && ThreadManager::continue_run) {
 
             int failed_recv = 0;
             std::pair<bool, ExampleWithScore> rcv(false, ExampleWithScore());
@@ -127,8 +126,6 @@ void sampler_thread(
             num_sampled += sample_count;
         }
     }
-
-    ThreadManager::done(id);
 }
 
 
@@ -146,7 +143,7 @@ Samplers::Samplers(
     num_threads(num_threads) {}
 
 void Samplers::run() {
-    
+
     //Signal signal = sampling_signal;
     //*signal = Signal::START;  // new_signal;
     //*signal == Signal::START
@@ -159,8 +156,7 @@ void Samplers::run() {
             std::ref(updated_examples),
             std::ref(stats_update_s), std::ref(weights_table));
 
-        ThreadManager::add(th.get_id());
         th.detach();
     }
-    
+
 }

@@ -10,6 +10,8 @@
 // !!!! temporary
 typedef std::map<int, double> WeightTableRead;
 
+int sample_weights_table(WeightTableRead weight_table_r);
+
 class Samplers {
 public:
     Samplers(

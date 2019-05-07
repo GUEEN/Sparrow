@@ -1,6 +1,6 @@
 ---
-training_filename: C:/RUST/sparrow-master/data/a2a
-testing_filename: C:/RUST/sparrow-master/data/a2a.t
+training_filename: data/a2a
+testing_filename: data/a2a.t
 num_examples: 2265
 num_testing_examples: 30296
 num_features: 125

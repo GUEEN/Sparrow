@@ -32,54 +32,43 @@ public:
     }
 
     void send(const T& value) {
-        //std::cout << "thread " << std::this_thread::get_id() << " is sending to '" << name << "' channel" << std::endl;
-        if (size == 0 || q.size() < size) {
-            std::lock_guard<std::mutex> lock(mutex);
-            q.push(value);
-            return;
-        } 
-        std::thread::id id = std::this_thread::get_id();
-        while (ThreadManager::continue_run(id) && q.size() >= size) {
+        while (ThreadManager::continue_run) {
+            {
+                std::lock_guard<std::mutex> lock(mutex);
+                if (size == 0 || q.size() < size) {
+                    q.push(value);
+                    return;
+                }
+            }
             std::this_thread::yield();
-            continue;
-        }
-        if (ThreadManager::continue_run(id)) {
-            std::lock_guard<std::mutex> lock(mutex);
-            q.push(value);
         }
     }
 
     T recv() {
-        //std::cout << "thread " << std::this_thread::get_id() << " is recv from '" << name << "' channel" << std::endl;
-        std::thread::id id = std::this_thread::get_id();
-        while (ThreadManager::continue_run(id)) {
-            std::lock_guard<std::mutex> lock(mutex);
+        while (ThreadManager::continue_run) {
+            mutex.lock();
             if (q.empty()) {
+                mutex.unlock();
                 std::this_thread::yield();
                 continue;
             }
+
             T value = q.front();
             q.pop();
-            if (q.empty()) {
-                //std::cout << "CHANNEL IS EMPTY NOW!" << std::endl;
-            }
+            mutex.unlock();
 
             return value;
         }
-        //std::cout << "object from channel "<< name << " received!" << std::endl;
         return T();
     }
 
     std::pair<bool, T> try_recv() {
-        //std::cout << "thread " << std::this_thread::get_id() << " is try_recv from '" << name << "' channel" << std::endl;
         std::lock_guard<std::mutex> lock(mutex);
         if (q.empty()) {
-            //std::cout << " [chan is empty]" << std::endl;
             return std::make_pair(false, T());
         }
         T value = q.front();
         q.pop();
-        //std::cout << " [got value]" << std::endl;
         return std::pair<bool, T>(true, value);
     }
 
@@ -88,13 +77,13 @@ public:
     }
 
     int len() const {
+        std::lock_guard<std::mutex> lock(mutex);
         return q.size();
     }
 
-
 private:
     std::string name;
-    std::mutex mutex;
+    mutable std::mutex mutex;
     std::queue<T> q;
     const int size;
 
