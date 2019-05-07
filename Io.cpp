@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <stdlib.h>
+#include <cassert>
 
 BufReader::BufReader(const std::string& filename) {
     f.open(filename);
@@ -22,6 +23,7 @@ void BufReader::read_line(std::string& line) {
 // read an example from a binary file
 Example BufReader::read_exact() {
     //TODO
+    assert(false);
     int label = 0;
     std::vector<int> feature;
     
