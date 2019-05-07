@@ -60,7 +60,7 @@ void Boosting::training(
     while (is_gamma_significant && (iteration <= num_iterations || model.size() < num_iterations)) {
 
         std::vector<ExampleInSampleSet> data = training_loader.get_next_batch_and_update(true, model);
-        int batch_size = data.size();
+        //int batch_size = data.size();
         std::shared_ptr<Tree> new_rule = learner.update(data, validate_set1, validate_w1, validate_set2, validate_w2);
  
         if (new_rule) { // check if it is nonempty

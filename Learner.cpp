@@ -215,7 +215,7 @@ std::shared_ptr<Tree> Learner::update(
 
         for (int i = 0; i < bins.size(); ++i) {
 
-            Bins bin = bins[i];
+            const Bins& bin = bins[i];
 
             auto& weak_rules_score_ = weak_rules_score[i];
             auto& sum_c_ = sum_c[i];
@@ -253,7 +253,7 @@ std::shared_ptr<Tree> Learner::update(
             // Now update each splitting values of the bin
             std::shared_ptr<TreeNode> valid_weak_rule; // = None;
             for (int j = 0; j < bin.len(); ++j) {
-                for (int rule_idx = 0;rule_idx < NUM_RULES; ++rule_idx) { // Types of rule
+                for (int rule_idx = 0; rule_idx < NUM_RULES; ++rule_idx) { // Types of rule
                     for (int it = 0; it < 3; ++it) { // Move examples from the right to the left child
                         accum_left[rule_idx][it] += bin_accum_vals[j][rule_idx][it][0];
                         accum_right[rule_idx][it] -= bin_accum_vals[j][rule_idx][it][1];
