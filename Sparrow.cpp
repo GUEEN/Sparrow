@@ -17,7 +17,6 @@ void validate(const Model& model, const Config& config, std::vector<Bins>& bins)
         config.testing_filename,
         num_examples,
         config.num_features,
-        false,
         config.positive,
         bins,
         { 0, config.num_features }
@@ -162,23 +161,6 @@ void training(const Config& config) {
     validate(model, config, bins);
 
 }
-
-
-void testing(const Config& config) {
-    // Load configurations
-  /*  validate(
-        config.models_table_filename.clone(),
-        config.testing_filename.clone(),
-        config.num_testing_examples,
-        config.num_features,
-        config.batch_size,
-        config.positive.clone(),
-        config.incremental_testing,
-        config.testing_scores_only,
-        );*/
-}
-
-
 
 int main() {
 

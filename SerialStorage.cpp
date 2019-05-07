@@ -126,7 +126,7 @@ void SerialStorage::load_to_memory(int batch_size) {
 }
 
 
-TextToBinHelper::TextToBinHelper(const std::string& original_filename) : size(0), bytes_per_example(0), writer(filename + "_bin") {
+TextToBinHelper::TextToBinHelper(const std::string& filename) : size(0), bytes_per_example(0), writer(filename + "_bin") {
 }
 
 void TextToBinHelper::append_data(const Example& data) {
