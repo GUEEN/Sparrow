@@ -54,10 +54,6 @@ int Bins::get_split_index(double val) const {
     return right;
 }
 
-int Bins::get_size() const {
-    return size;
-}
-
 void DistinctValues::update(double val) {
     ++total_vals;
 

@@ -3,6 +3,7 @@
 #include <cmath>
 #include <algorithm>
 #include <unordered_map>
+#include <cassert>
 
 #include "BufferLoader.h"
 #include "Utils.h"
@@ -39,7 +40,7 @@ void Learner::reset_trackers() {
     for (int i = 0; i < bins.size(); ++i) {
         for (int index = 0; index < num_candid; ++index) {
             if (is_active[index]) {
-                for (int j = 0; j < bins[i].get_size(); ++j) {
+                for (int j = 0; j < bins[i].len(); ++j) {
                     for (int k = 0; k < NUM_RULES; ++k) {
                         weak_rules_score[i][index][j][k] = 0.0;
                         sum_c[i][index][j][k] = 0.0;
@@ -67,7 +68,7 @@ void Learner::setup(int index) {
         std::vector<double> zeros(NUM_RULES);
 
         for (int i = 0; i < bins.size(); ++i) {
-            int len = bins[i].get_size();
+            int len = bins[i].len();
             weak_rules_score[i].emplace_back(len, zeros);
             sum_c[i].emplace_back(len, zeros);
             sum_c_squared[i].emplace_back(len, zeros);
@@ -79,7 +80,7 @@ void Learner::setup(int index) {
     }
     if (is_cleared) {
         for (int i = 0; i < bins.size(); ++i) {
-            for (int j = 0; j < bins[i].get_size(); ++j) {
+            for (int j = 0; j < bins[i].len(); ++j) {
                 for (int k = 0; k < NUM_RULES; ++k) {
                     weak_rules_score[i][index][j][k] = 0.0;
                     sum_c[i][index][j][k] = 0.0;
@@ -230,6 +231,8 @@ std::shared_ptr<Tree> Learner::update(
                 trivector values = pp.second;
 
                 int flip_index = example.feature[range_start + i];
+
+                assert(flip_index <= bin.len());
 
                 for (int j = 0; j < NUM_RULES; ++j) {
                     for (int k = 0; k < 3; ++k) {

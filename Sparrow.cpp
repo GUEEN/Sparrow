@@ -164,7 +164,7 @@ void training(const Config& config) {
 
 int main() {
 
-    std::string path = "configs/config_a2a.yaml";
+    std::string path = "configs/config_a1a.yaml";
 
     Config config = read_config(path);
     training(config);

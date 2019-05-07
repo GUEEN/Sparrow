@@ -24,9 +24,7 @@ public:
 
     int len() const;
     std::vector<double>& get_vals();
-
     int get_split_index(double val) const;
-    int get_size() const;
 
 private:
     int size;
