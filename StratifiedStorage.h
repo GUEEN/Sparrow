@@ -24,7 +24,7 @@ public:
         int num_assigners,
         int num_samplers,
         Sender<std::pair<ExampleWithScore, int>>& sampled_examples,
-        Receiver<Signal>& sampling_signal,
+        //Receiver<Signal>& sampling_signal,
         Receiver<Model>& models,
         int channel_size,
         bool debug_mode

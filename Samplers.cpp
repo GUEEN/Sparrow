@@ -159,11 +159,11 @@ Samplers::Samplers(
     Receiver<Model>& next_model,
     Sender<std::pair<int, std::pair<int, double>>>& stats_update_s,
     WeightTableRead& weights_table,
-    // sampling_signal_channel: Receiver<Signal>,
+    //Receiver<Signal>& sampling_signal_channel,
     int num_threads) : strata(strata), sampled_examples(sampled_examples), updated_examples(updated_examples),
     next_model(next_model), model(new Model()), sampling_signal(Signal::STOP), stats_update_s(stats_update_s),
-    weights_table(weights_table), num_threads(num_threads) {}
-    // sampling_signal_channel: sampling_signal_channel,
+    weights_table(weights_table), //sampling_signal_channel(sampling_signal_channel),
+    num_threads(num_threads) {}
 
 void Samplers::run() {
 

@@ -24,7 +24,6 @@ void weight_table_thread(
     while (ThreadManager::continue_run(id)) {
         auto p = stats_update_r.recv();
         int index = p.first;
-        int count = p.second.first;
         double weight = p.second.second;
 
         double cur = weights_table_w[index];
@@ -88,7 +87,7 @@ StratifiedStorage::StratifiedStorage(
     int num_assigners,
     int num_samplers,
     Sender<std::pair<ExampleWithScore, int>>& sampled_examples,
-    Receiver<Signal>& sampling_signal,
+    //Receiver<Signal>& sampling_signal,
     Receiver<Model>& models,
     int channel_size,
     bool debug_mode) : positive(positive),

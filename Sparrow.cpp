@@ -108,7 +108,7 @@ void training(const Config& config) {
         config.num_assigners,
         config.num_samplers,
         examples_channel.first,
-        signal_channel.second,
+        //signal_channel.second,
         model_channel.second,
         config.channel_size,
         config.debug_mode
@@ -164,7 +164,7 @@ void training(const Config& config) {
 
 int main() {
 
-    std::string path = "configs/config_a1a.yaml";
+    std::string path = "configs/config_a2a.yaml";
 
     Config config = read_config(path);
     training(config);
