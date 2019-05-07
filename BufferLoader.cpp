@@ -79,7 +79,7 @@ BufferLoader::BufferLoader(
     sampling_signal_channel(sampling_signal_channel),
     serial_sampling(serial_sampling),
     gatherer(gather_new_sample, new_examples, size),
-    ess(0.0), min_ess(0.0), curr_example(0)  {
+    ess(0.0), min_ess(min_ess), curr_example(0)  {
     num_batch = (size + batch_size - 1) / batch_size;
     if (serial_sampling == false) {
         sampling_signal_channel.send(Signal::START);
@@ -173,9 +173,9 @@ void BufferLoader::update_ess() {
     }
 
     ess = sum_weights * sum_weights / sum_weights_squared / size;
-    //if (ess < min_ess) {
-    //    force_switch();
-    //}
+    if (serial_sampling && ess < min_ess) {
+        force_switch();
+    }
 }
 
 /// Update the scores of the examples using `model`
