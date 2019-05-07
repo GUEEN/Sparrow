@@ -25,7 +25,7 @@ struct TreeNode {
 class Tree {
 public:
     explicit Tree(int max_leaves);
-    Tree(const Tree& tree);
+    Tree(const Tree& tree) = default;
     void release();
 
     std::pair<int, int> split(int leaf, int feature, int threshold,
@@ -34,12 +34,12 @@ public:
     std::pair<int, double> get_leaf_index_prediction(const Example& data) const;
     double get_leaf_prediction(const Example& data) const;
     void add_new_node(double leaf_value, int depth);
-    int get_num_leaves() const;
+    int get_num_vertices() const;
 
 private:
     int max_leaves;
     int num_leaves;
-    // left_child[i] is the left child of the node i
+
     std::vector<int> left_child;
     std::vector<int> right_child;
     std::vector<int> split_feature;

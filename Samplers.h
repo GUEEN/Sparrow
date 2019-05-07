@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <atomic>
 
 #include "Channels.h"
 #include "Tree.h"
@@ -15,7 +16,7 @@ public:
         std::shared_ptr<Strata>& strata,
         Sender<std::pair<ExampleWithScore, int>>& sampled_examples,
         Sender<ExampleWithScore>& updated_examples,
-        Receiver<Model>& next_model,
+        std::shared_ptr<Model>& model,
         Sender<std::pair<int, std::pair<int, double>>>& stats_update_s,
         WeightTableRead& weights_table,
         // sampling_signal_channel: Receiver<Signal>,
@@ -28,7 +29,6 @@ private:
     std::shared_ptr<Strata>& strata;
     Sender<std::pair<ExampleWithScore, int>>& sampled_examples;
     Sender<ExampleWithScore>& updated_examples;
-    Receiver<Model>& next_model;
     std::shared_ptr<Model> model;
     Signal sampling_signal;
     Sender<std::pair<int, std::pair<int, double>>>& stats_update_s;

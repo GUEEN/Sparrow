@@ -29,32 +29,12 @@ int sample_weights_table(WeightTableRead weights_table_r) {
     }
 }
 
-void sampler_model_thread(
-    Receiver<Model>& next_model,
-    std::shared_ptr<Model>& model
-) {
-    std::mutex mutex;
-    std::thread::id id = std::this_thread::get_id();
-
-    while (ThreadManager::continue_run(id)) {
-
-        Model new_model = next_model.recv();
-
-        std::lock_guard<std::mutex> lock(mutex);
-
-        model.reset(new Model(next_model.recv()));
-        std::cout << "Sampler model update" << std::endl;
-    }
-
-    ThreadManager::done(id);
-}
-
 
 void sampler_thread(
     std::shared_ptr<Strata>& strata,
+    std::shared_ptr<Model>& model,
     Sender<std::pair<ExampleWithScore, int>>& sampled_examples,
     Sender<ExampleWithScore>& updated_examples,
-    std::shared_ptr<Model>& model,
     Sender<std::pair<int, std::pair<int, double>>>& stats_update_s,
     WeightTableRead& weights_table
 ) {
@@ -156,20 +136,16 @@ Samplers::Samplers(
     std::shared_ptr<Strata>& strata,
     Sender<std::pair<ExampleWithScore, int>>& sampled_examples,
     Sender<ExampleWithScore>& updated_examples,
-    Receiver<Model>& next_model,
+    std::shared_ptr<Model>& model,
     Sender<std::pair<int, std::pair<int, double>>>& stats_update_s,
     WeightTableRead& weights_table,
     //Receiver<Signal>& sampling_signal_channel,
     int num_threads) : strata(strata), sampled_examples(sampled_examples), updated_examples(updated_examples),
-    next_model(next_model), model(new Model()), sampling_signal(Signal::STOP), stats_update_s(stats_update_s),
+    model(model), sampling_signal(Signal::STOP), stats_update_s(stats_update_s),
     weights_table(weights_table), //sampling_signal_channel(sampling_signal_channel),
     num_threads(num_threads) {}
 
 void Samplers::run() {
-
-    std::thread thm(sampler_model_thread, std::ref(next_model), std::ref(model));
-    ThreadManager::add(thm.get_id());
-    thm.detach();
     
     //Signal signal = sampling_signal;
     //*signal = Signal::START;  // new_signal;
@@ -178,8 +154,9 @@ void Samplers::run() {
     for (int i = 0; i < num_threads; i++) {
         std::cout << "Launch sampler thread " << i << std::endl;
         std::thread th(sampler_thread,
-            std::ref(strata), std::ref(sampled_examples),
-            std::ref(updated_examples), std::ref(model),
+            std::ref(strata), std::ref(model),
+            std::ref(sampled_examples),
+            std::ref(updated_examples),
             std::ref(stats_update_s), std::ref(weights_table));
 
         ThreadManager::add(th.get_id());

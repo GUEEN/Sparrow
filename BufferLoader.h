@@ -41,7 +41,7 @@ public:
 
     std::vector<ExampleInSampleSet> get_next_batch_and_update(
         bool allow_switch,
-        Model& model
+        std::shared_ptr<Model>& model
     );
 
     std::vector<ExampleInSampleSet> get_next_mut_batch(bool allow_switch);
@@ -71,4 +71,4 @@ private:
     int curr_example;
 };
 
-void update_scores(std::vector<ExampleInSampleSet>& data, Model& model);
+void update_scores(std::vector<ExampleInSampleSet>& data, std::shared_ptr<Model>& model);

@@ -17,13 +17,11 @@ public:
         Range range,
         int max_sample_size,
         double default_gamma,
-        Sender<Model>& sampler_channel_s);
+        std::shared_ptr<Model>& model);
 
     void training(
         std::vector<Example> validate_set1,
         std::vector<Example> validate_set2);
-
-    Model get_model() const;
 
 private:
 
@@ -31,14 +29,11 @@ private:
     int channel_size;
 
     BufferLoader training_loader;
-    Model model;
     Learner learner;
 
     double sum_gamma;
     double remote_sum_gamma;
 
-    Sender<Model> sampler_channel_s;
-
-    void try_send_model();
+    std::shared_ptr<Model> model;
 
 };

@@ -16,11 +16,11 @@ Boosting::Boosting(
     Range range,
     int max_sample_size,
     double default_gamma,
-    Sender<Model>& sampler_channel_s
+    std::shared_ptr<Model>& model
     ) : num_iterations(num_iterations), 
     training_loader(training_loader),
     learner(max_leaves, min_gamma, default_gamma, max_trials_before_shrink, bins, range),
-    sampler_channel_s(sampler_channel_s) {
+    model(model) {
     // add root node for balancing labels
     TreeScore base_tree_and_gamma = get_base_tree(max_sample_size, training_loader);
     Tree base_tree = base_tree_and_gamma.first;
@@ -31,9 +31,7 @@ Boosting::Boosting(
     sum_gamma = gamma_squared;
     remote_sum_gamma = gamma_squared;
 
-    model.push_back(base_tree);
-
-    try_send_model();
+    model->push_back(base_tree);
 }
 
 /// Start training the boosting algorithm.
@@ -46,18 +44,18 @@ void Boosting::training(
     std::vector<double> validate_w2;
     for (int i = 0; i < validate_set1.size(); ++i) {
         const Example& example = validate_set1[i];
-        validate_w1.push_back(get_weight(example, model[0].get_leaf_prediction(example)));
+        validate_w1.push_back(get_weight(example, (*model)[0].get_leaf_prediction(example)));
     }
     for (int i = 0; i < validate_set2.size(); ++i) {
         const Example& example = validate_set2[i];
-        validate_w2.push_back(get_weight(example, model[0].get_leaf_prediction(example)));
+        validate_w2.push_back(get_weight(example, (*model)[0].get_leaf_prediction(example)));
     }
     
     int iteration = 0;
     bool is_gamma_significant = true;
    
 
-    while (is_gamma_significant && (iteration <= num_iterations || model.size() < num_iterations)) {
+    while (is_gamma_significant && (iteration <= num_iterations || model->size() < num_iterations)) {
 
         std::vector<ExampleInSampleSet> data = training_loader.get_next_batch_and_update(true, model);
         //int batch_size = data.size();
@@ -77,28 +75,19 @@ void Boosting::training(
                 }
             }
 
-            model.push_back(*new_rule);
+            model->push_back(*new_rule);
             is_gamma_significant = learner.is_gamma_significant();
 
             if (is_gamma_significant) {
-
-                try_send_model();
                 learner.reset_all();
             }
         }
         ++iteration;
-        std::cout << "iteration " << iteration << " completed. Model length " << model.size() << std::endl;
+        std::cout << "iteration " << iteration << " completed. Model length " << model->size() << std::endl;
     }
 
-    std::cout << "Training is finished. Model length: " << model.size() << ". Is gamma significant? " <<
+    std::cout << "Training is finished. Model length: " << model->size() << ". Is gamma significant? " <<
         learner.is_gamma_significant()  << std::endl;
     ThreadManager::stop_all();
 }
 
-void Boosting::try_send_model() {
-    sampler_channel_s.send(model);
-}
-
-Model Boosting::get_model() const {
-    return model;
-}

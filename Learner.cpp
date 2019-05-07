@@ -105,11 +105,6 @@ std::pair<double, std::tuple<int, int, int, int>> Learner::get_max_empirical_rat
             indices.push_back(i);
     }
 
-    //let indices : Vec<usize> = self.is_active.iter().enumerate()
-    //    .filter(| (_, is_active) | **is_active)
-    //    .map(| (index, _) | index)
-    //    .collect();
-
     double max_ratio = 0.0;
     double actual_ratio = 0.0;
     std::tuple<int, int, int, int> rule_id;
@@ -210,7 +205,7 @@ std::shared_ptr<Tree> Learner::update(
             continue;
         }
 
-        std::vector<std::pair<Example, trivector>> data = data_by_node[index];
+        std::vector<std::pair<Example, trivector>>& data = data_by_node[index];
 
         std::shared_ptr<TreeNode> tree_node;
 
@@ -420,7 +415,7 @@ std::shared_ptr<Tree> Learner::update(
 
         reset_trackers();
 
-        if (tree.get_num_leaves() == max_leaves * 2 - 1) {
+        if (tree.get_num_vertices() == max_leaves * 2 - 1) {
 
             //debug!("default-gamma, {}, {}", self.default_gamma, self.tree_max_rho_gamma * 0.9);
             // self.default_gamma = 0.25;
@@ -458,18 +453,7 @@ TreeScore get_base_tree(int max_sample_size, BufferLoader& data_loader) {
                 ++num_neg;
             }
         }
-        //let(num_pos, num_neg) =
-        //    data.par_iter().fold(
-        //        || (0, 0),
-        //        | (num_pos, num_neg), (example, _) | {
-        //    if example.label > 0 {
-        //        (num_pos + 1, num_neg)
-        //    }
-        //    else {
-        //        (num_pos, num_neg + 1)
-        //    }
-        //}
-        //).reduce(|| (0, 0), | (a1, a2), (b1, b2) | (a1 + b1, a2 + b2));
+
         n_pos += num_pos;
         n_neg += num_neg;
         sample_size -= data.size();

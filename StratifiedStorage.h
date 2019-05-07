@@ -25,7 +25,7 @@ public:
         int num_samplers,
         Sender<std::pair<ExampleWithScore, int>>& sampled_examples,
         //Receiver<Signal>& sampling_signal,
-        Receiver<Model>& models,
+        std::shared_ptr<Model>& model,
         int channel_size,
         bool debug_mode
     );
@@ -46,6 +46,7 @@ private:
     std::pair<Sender< std::pair<int, std::pair<int, double>> >, Receiver< std::pair<int, std::pair<int, double>> >> stats_update;
     WeightTableRead weights_table_r;
     std::shared_ptr<Samplers> samplers;
+    std::shared_ptr<Model> model;
 
 };
 

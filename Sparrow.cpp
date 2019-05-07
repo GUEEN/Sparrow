@@ -9,7 +9,7 @@
 #include "SerialStorage.h"
 #include "StratifiedStorage.h"
 
-void validate(const Model& model, const Config& config, std::vector<Bins>& bins) {
+void validate(std::shared_ptr<Model>& model, const Config& config, std::vector<Bins>& bins) {
 
     int num_examples = config.num_testing_examples;
 
@@ -28,8 +28,8 @@ void validate(const Model& model, const Config& config, std::vector<Bins>& bins)
     int index = 0;
     while (index < num_examples) {
         std::vector<Example> batch = data.read(config.batch_size);
-        for (int k = 0; k < model.size(); ++k) {
-            Tree tree = model[k];
+        for (int k = 0; k < model->size(); ++k) {
+            const Tree& tree = (*model)[k];
             for (int i = 0; i < batch.size() && i + index < num_examples; ++i) {
 
                 Example& example = batch[i];
@@ -76,11 +76,7 @@ void training(const Config& config) {
     // BufferLoader -> Strata
     std::pair<Sender<Signal>, Receiver<Signal>> signal_channel =
         bounded_channel<Signal>(10, "sampling-signal");
-
-    // Booster -> Strata
-    std::pair<Sender<Model>, Receiver<Model>> model_channel =
-        bounded_channel<Model>(config.channel_size, "updated-models");
-    
+   
     std::cout << "Creating bins" << std::endl;
 
     SerialStorage serial_training_loader(
@@ -98,6 +94,8 @@ void training(const Config& config) {
     std::vector<Example> validation_set1;
     std::vector<Example> validation_set2;
 
+    std::shared_ptr<Model> model(new Model());
+
     std::cout << "Starting the stratified structure." << std::endl;
     StratifiedStorage stratified_structure(
         config.num_examples,
@@ -109,7 +107,7 @@ void training(const Config& config) {
         config.num_samplers,
         examples_channel.first,
         //signal_channel.second,
-        model_channel.second,
+        model,
         config.channel_size,
         config.debug_mode
         );
@@ -146,7 +144,7 @@ void training(const Config& config) {
         config.range,
         config.max_sample_size,
         config.default_gamma,
-        model_channel.first
+        model
         );
 
 
@@ -155,8 +153,6 @@ void training(const Config& config) {
     std::cout << "Training complete" << std::endl;
 
     std::cout << "Testing our model" << std::endl;
-
-    Model model = booster.get_model();
 
     validate(model, config, bins);
 

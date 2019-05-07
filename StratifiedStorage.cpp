@@ -16,7 +16,6 @@ using std::pair;
 void weight_table_thread(
     WeightTableRead& weights_table_w,
     Receiver<pair<int, pair<int, double>>>& stats_update_r
-
 ) {
     std::mutex mutex;
     std::thread::id id = std::this_thread::get_id();
@@ -45,6 +44,7 @@ void assigner_thread(
         auto ret = updated_examples_r.try_recv();
         if (!ret.first) {
             //break;
+            std::this_thread::yield();
             continue;
         }
 
@@ -87,13 +87,14 @@ StratifiedStorage::StratifiedStorage(
     int num_assigners,
     int num_samplers,
     Sender<std::pair<ExampleWithScore, int>>& sampled_examples,
+    std::shared_ptr<Model>& model,
     //Receiver<Signal>& sampling_signal,
-    Receiver<Model>& models,
     int channel_size,
     bool debug_mode) : positive(positive),
     updated_examples(bounded_channel<ExampleWithScore>(channel_size, "updated-examples")),
     strata(new Strata(num_examples, feature_size, num_examples_per_block, disk_buffer_filename)),
-    stats_update(bounded_channel<pair<int, pair<int, double>>>(5000000, "stats"))
+    stats_update(bounded_channel<pair<int, pair<int, double>>>(5000000, "stats")),
+    model(model)
  {
     std::cout << "debug_mode=" << debug_mode << std::endl;
 
@@ -106,7 +107,7 @@ StratifiedStorage::StratifiedStorage(
     samplers.reset(new Samplers(strata,
         sampled_examples,
         updated_examples.first,
-        models,
+        model,
         stats_update.first,
         weights_table_r,
         // sampling_signal,

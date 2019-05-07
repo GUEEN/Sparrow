@@ -1,17 +1,7 @@
 #include "Tree.h"
 
 #include <utility>
-
-Tree::Tree(const Tree& tree) {
-    max_leaves = tree.max_leaves;
-    num_leaves = tree.num_leaves;
-    left_child = tree.left_child;
-    right_child = tree.right_child;
-    split_feature = tree.split_feature;
-    threshold = tree.threshold;
-    leaf_value = tree.leaf_value;
-    leaf_depth = tree.leaf_depth;
-}
+#include <cassert>
 
 Tree::Tree(int max_leaves) : max_leaves(max_leaves), num_leaves(0) {
     left_child.reserve(2 * max_leaves);
@@ -35,6 +25,8 @@ void Tree::release() {
 
 std::pair<int, int> Tree::split(int leaf, int feature, int threshold_,
     double left_value, double right_value) {
+
+    assert(split_feature[leaf] == -1);
 
     double leaf_value_ = leaf_value[leaf];
     int leaf_depth_ = leaf_depth[leaf];
@@ -81,6 +73,6 @@ void Tree::add_new_node(double leaf_value_, int depth) {
     leaf_depth.push_back(depth);
 }
 
-int Tree::get_num_leaves() const {
+int Tree::get_num_vertices() const {
     return num_leaves;
 }

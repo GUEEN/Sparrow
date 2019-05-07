@@ -101,7 +101,7 @@ std::vector<ExampleInSampleSet> BufferLoader::get_next_batch(bool allow_switch) 
     return get_next_mut_batch(allow_switch);
 }
 
-std::vector<ExampleInSampleSet> BufferLoader::get_next_batch_and_update(bool allow_switch, Model& model) {
+std::vector<ExampleInSampleSet> BufferLoader::get_next_batch_and_update(bool allow_switch, std::shared_ptr<Model>& model) {
     std::vector<ExampleInSampleSet> batch = get_next_mut_batch(allow_switch);
     update_scores(batch, model);
     return batch;
@@ -179,15 +179,15 @@ void BufferLoader::update_ess() {
 }
 
 /// Update the scores of the examples using `model`
-void update_scores(std::vector<ExampleInSampleSet>& data, Model& model) {
-    int model_size = model.size();
+void update_scores(std::vector<ExampleInSampleSet>& data, std::shared_ptr<Model>& model) {
+    int model_size = model->size();
 
     for (ExampleInSampleSet& example : data) {
         double curr_weight = (example.second).first;
         double new_score = 0.0;
 
         for (int i = example.second.second; i < model_size; ++i) {
-            new_score += model[i].get_leaf_prediction(example.first);
+            new_score += (*model)[i].get_leaf_prediction(example.first);
         }
 
         example.second = std::make_pair(curr_weight * get_weight(example.first, new_score), model_size);
