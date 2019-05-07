@@ -33,7 +33,7 @@ LabeledData<TFeature, TLabel> parse_libsvm_one_line(
         }
 
         double value = std::stod(tokens[1]); // TODO: check the NAN value cases
-        int index = std::stoi(tokens[0]) - 1;
+        int index = std::stoi(tokens[0]);
         feature[index] = value;
     }
     return LabeledData<TFeature, TLabel>(feature, label);
