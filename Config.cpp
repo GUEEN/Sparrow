@@ -16,7 +16,7 @@ bool stob(const std::string& word) {
     return word == "true";
 }
 
-//reads config from a yaml file
+//primitive yaml config reader. Order of elements matters
 Config read_config(const std::string& filename) {
     std::ifstream f(filename);
     //f.open();
@@ -28,8 +28,8 @@ Config read_config(const std::string& filename) {
     std::getline(f, line);
     std::string training_filename = last_token(line);
     std::getline(f, line);
-    std::getline(f, line);
     std::string testing_filename = last_token(line);
+    std::getline(f, line);
     int num_examples = stoi(last_token(line));
     std::getline(f, line);
     int num_testing_examples = stoi(last_token(line));
