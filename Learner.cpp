@@ -78,7 +78,7 @@ void Learner::setup(int index) {
         counts.push_back(0);
         is_active.push_back(false);
     }
-    if (is_cleared) {
+    if (!is_cleared) {
         for (int i = 0; i < bins.size(); ++i) {
             for (int j = 0; j < bins[i].len(); ++j) {
                 for (int k = 0; k < NUM_RULES; ++k) {
