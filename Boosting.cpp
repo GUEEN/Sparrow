@@ -34,7 +34,6 @@ Boosting::Boosting(
     model.push_back(base_tree);
 
     try_send_model();
-    //BufWriter persist_file_buffer(&String::from("model.json")));
 }
 
 /// Start training the boosting algorithm.
@@ -88,6 +87,7 @@ void Boosting::training(
             }
         }
         ++iteration;
+        std::cout << "iteration " << iteration << " completed. Model length " << model.size() << std::endl;
     }
 
     std::cout << "Training is finished. Model length: " << model.size() << ". Is gamma significant? " <<
