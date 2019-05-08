@@ -3,6 +3,8 @@
 #include <utility>
 #include <cassert>
 
+#include "Utils.h"
+
 Tree::Tree(int max_leaves) : max_leaves(max_leaves), num_leaves(0) {
     left_child.reserve(2 * max_leaves);
     right_child.reserve(2 * max_leaves);
@@ -71,6 +73,12 @@ void Tree::add_new_node(double leaf_value_, int depth) {
     threshold.push_back(0);
     leaf_value.push_back(leaf_value_);
     leaf_depth.push_back(depth);
+}
+
+void Tree::set_weight(double weight) {
+    for (int i = 0; i < num_leaves; ++i) {
+        leaf_value[i] = weight * get_sign(leaf_value[i]);
+    }
 }
 
 int Tree::get_num_vertices() const {

@@ -14,7 +14,7 @@ int sample_weights_table(const WeightsTable& weights_table) {
     }
 
     if (get_sign(sum_of_weights) == 0) {
-        return -1;
+        return INT_MIN;
     }
 
     double frac = (static_cast<double>(rand()) / (RAND_MAX)) * sum_of_weights;
@@ -47,7 +47,7 @@ void sampler_thread(
     while (ThreadManager::continue_run) {
         // STEP 1: Sample which strata to get next sample
         int index = sample_weights_table(weights_table);
-        if (index == -1) { // index is none
+        if (index == INT_MIN) { // index is none
             // stratified storage is empty, wait for data loading
             //std::cout << "Sampler sleeps waiting for data loading" << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));

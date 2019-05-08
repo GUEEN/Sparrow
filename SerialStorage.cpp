@@ -43,13 +43,6 @@ std::vector<Example> SerialStorage::read(int batch_size) {
     std::vector<Example> batch;
 
     if (is_binary) {
-        batch = read_k_labeled_data_from_binary_file(reader, true_batch_size, bytes_per_example);
-    } else {
-        std::vector<RawExample> raw_batch = 
-            read_k_labeled_data<RawTFeature, TLabel>(reader, true_batch_size, 0, feature_size, positive);
-    }
-
-    if (is_binary) {
         read_k_labeled_data_from_binary_file(reader, true_batch_size, bytes_per_example);
     } else {
         std::vector<RawExample> raw_batch =
@@ -64,12 +57,6 @@ std::vector<Example> SerialStorage::read(int batch_size) {
             batch.emplace_back(feature, rexample.label);
         }
     }
-
-    //if let Some(ref mut cons) = self.binary_cons{
-    //    batch.iter().for_each(| data | {
-    //    cons.append_data(data);
-    //});
-    //}
 
     index = tail;
     try_reset(false);

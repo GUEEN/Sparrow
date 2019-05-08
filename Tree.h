@@ -34,6 +34,7 @@ public:
     std::pair<int, double> get_leaf_index_prediction(const Example& data) const;
     double get_leaf_prediction(const Example& data) const;
     void add_new_node(double leaf_value, int depth);
+    void set_weight(double weight);
     int get_num_vertices() const;
 
 private:
