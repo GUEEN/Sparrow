@@ -1,5 +1,6 @@
 #include "Config.h"
 
+#include <iostream>
 #include <fstream>
 #include <cassert>
 #include <sstream>
@@ -19,6 +20,10 @@ bool stob(const std::string& word) {
 //primitive yaml config reader. Order of elements matters
 Config read_config(const std::string& filename) {
     std::ifstream f(filename);
+    if (f.good() == false) {
+        std::cout << "CONFIG FILE NOT FOUND!" << std::endl;
+        exit(EXIT_FAILURE);
+    }
     //f.open();
 
     std::string line;
@@ -70,10 +75,6 @@ Config read_config(const std::string& filename) {
     std::getline(f, line);
     int num_samplers = stoi(last_token(line));
     std::getline(f, line);
-    bool save_process = stob(last_token(line));
-    std::getline(f, line);
-    int save_interval = stoi(last_token(line));
-    std::getline(f, line);
     bool debug_mode = stob(last_token(line));
 
     return{
@@ -99,8 +100,6 @@ Config read_config(const std::string& filename) {
         disk_buffer_filename,
         num_assigners,
         num_samplers,
-        save_process,
-        save_interval,
         debug_mode
     };
 }

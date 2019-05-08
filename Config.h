@@ -49,10 +49,6 @@ struct Config {
     int num_assigners;
     /// Number of threads for sampling examples from strata
     int num_samplers;
-    /// Flag for keeping all intermediate models during training (for debugging purpose)
-    bool save_process;
-    /// Number of iterations between persisting models on disk
-    int save_interval;
     /// Flag for activating debug mode
     bool debug_mode;
 };
