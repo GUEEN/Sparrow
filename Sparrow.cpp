@@ -224,7 +224,7 @@ void training(const Config& config) {
     validate(model, config, bins);
 
     // recompute weights according to adaboost for comparison
-    std::cout << "Reweight the trees with AdaBoost" << std::endl;
+    std::cout << std::endl << "Reweight the model with AdaBoost" << std::endl;
     std::shared_ptr<Model> ab_model = AdaBoost(config, model, bins, 1000);
     validate(ab_model, config, bins);
 

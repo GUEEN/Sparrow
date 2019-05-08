@@ -11,7 +11,7 @@ min_gamma: 0.00001
 default_gamma: 0.25
 max_trials_before_shrink: 20000
 min_ess: 0.5
-num_iterations: 15
+model_length: 15
 max_leaves: 2
 channel_size: 128
 buffer_size: 20000
