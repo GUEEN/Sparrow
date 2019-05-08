@@ -3,11 +3,6 @@
 #include <map>
 #include <vector>
 
-struct Range {
-    int start;
-    int end;
-};
-
 // counter of distinct double values
 struct DistinctValues {
     DistinctValues() = default;

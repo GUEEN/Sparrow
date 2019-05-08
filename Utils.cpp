@@ -7,7 +7,7 @@ double get_weight(const Example& data, double score) {
     return exp(-score * (data.label));
 }
 
-inline std::vector<double> get_weights(const std::vector<Example>& data, const std::vector<double>& scores) {
+std::vector<double> get_weights(const std::vector<Example>& data, const std::vector<double>& scores) {
     std::vector<double> weights;
     for (int i = 0; i < data.size(); ++i) {
         weights.push_back(get_weight(data[i], scores[i]));
@@ -27,7 +27,7 @@ double get_bound(double sum_c, double sum_c_squared) {
     }
 }
 
-inline int get_sign(double a) {
+int get_sign(double a) {
     if (a < -ALMOST_ZERO) {
         return -1;
     } else {

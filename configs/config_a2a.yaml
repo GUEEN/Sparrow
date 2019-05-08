@@ -4,9 +4,6 @@ testing_filename: data/a2a.t
 num_examples: 2265
 num_testing_examples: 30296
 num_features: 125
-range:
-  start: 0
-  end: 125
 positive: +1
 max_sample_size: 20000
 max_bin_size: 10

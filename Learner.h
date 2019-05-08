@@ -20,8 +20,8 @@ public:
         double min_gamma,
         double default_gamma,
         int num_examples_before_shrink,
-        const std::vector<Bins>& bins,
-        Range range);
+        const std::vector<Bins>& bins
+        );
 
     bool is_gamma_significant() const;
 

@@ -35,7 +35,6 @@ public:
         int size,
         int batch_size,
         int feature_size,
-        Range range,
         const std::vector<Bins>& bins);
 
 private:

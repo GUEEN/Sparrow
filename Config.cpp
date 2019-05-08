@@ -36,12 +36,6 @@ Config read_config(const std::string& filename) {
     std::getline(f, line);
     int num_features = stoi(last_token(line));
     std::getline(f, line);
-    assert(line == "range:");
-    std::getline(f, line);
-    int range_begin = stoi(last_token(line));
-    std::getline(f, line);
-    int range_end = stoi(last_token(line));
-    std::getline(f, line);
     std::string positive = last_token(line);
     std::getline(f, line);
     int max_sample_size = stoi(last_token(line));
@@ -88,7 +82,6 @@ Config read_config(const std::string& filename) {
         num_examples,
         num_testing_examples,
         num_features,
-        {range_begin, range_end},
         positive, 
         max_sample_size,
         max_bin_size,

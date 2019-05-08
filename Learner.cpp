@@ -15,9 +15,8 @@ Learner::Learner(
         double min_gamma,
         double default_gamma,
         int num_examples_before_shrink,
-        const std::vector<Bins>& bins,
-        Range range
-        ) : bins(bins), range_start(range.start), 
+        const std::vector<Bins>& bins        
+        ) : bins(bins), 
     num_examples_before_shrink(num_examples_before_shrink), weak_rules_score(bins.size()),
     sum_c(bins.size()), sum_c_squared(bins.size()), default_gamma(default_gamma),
     min_gamma(min_gamma), rho_gamma(default_gamma), root_rho_gamma(default_gamma),

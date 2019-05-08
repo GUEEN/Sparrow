@@ -13,13 +13,12 @@ Boosting::Boosting(
     const std::vector<Bins>& bins,
     BufferLoader& training_loader,
     // serial_training_loader: SerialStorage,
-    Range range,
     int max_sample_size,
     double default_gamma,
     std::shared_ptr<Model>& model
     ) : num_iterations(num_iterations),
     training_loader(training_loader),
-    learner(max_leaves, min_gamma, default_gamma, max_trials_before_shrink, bins, range),
+    learner(max_leaves, min_gamma, default_gamma, max_trials_before_shrink, bins),
     model(model) {
     // add root node for balancing labels
     TreeScore base_tree_and_gamma = get_base_tree(max_sample_size, training_loader);

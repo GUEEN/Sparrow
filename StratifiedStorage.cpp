@@ -115,15 +115,13 @@ void StratifiedStorage::init_stratified_from_file(
     int size,
     int batch_size,
     int feature_size,
-    Range range,
     const std::vector<Bins>& bins) {
     SerialStorage reader(
         filename,
         size,
         feature_size,
         positive,
-        std::vector<Bins>(),
-        range
+        std::vector<Bins>()
     );
 
     int index = 0;
@@ -134,11 +132,7 @@ void StratifiedStorage::init_stratified_from_file(
             std::vector<TFeature> features;
             for (int idx = 0; idx < raw_features.size(); ++idx) {
                 RawTFeature val = raw_features[idx];
-                if (range.start <= idx && idx < range.end) {
-                    features.push_back(bins[idx - range.start].get_split_index(val));
-                } else {
-                    features.push_back(0);
-                }
+                features.push_back(bins[idx].get_split_index(val));
             }
             LabeledData<TFeature, TLabel> mapped_data(features, rexample.label);
             updated_examples.first.send(std::make_pair(mapped_data, std::make_pair(0.0, 0)));

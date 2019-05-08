@@ -18,8 +18,7 @@ public:
         int size,
         int feature_size,
         const std::string& positive,
-        const std::vector<Bins>& bins,
-        Range range
+        const std::vector<Bins>& bins
     );
 
     std::vector<RawExample> read_raw(int batch_size);
@@ -46,7 +45,6 @@ private:
     std::vector<Example> memory_buffer;
     int index;
     std::vector<Bins> bins;
-    Range range;
 
     int head;
     int tail;
@@ -72,7 +70,7 @@ private:
 std::vector<Bins> create_bins(
     int max_sample_size,
     int max_bin_size,
-    Range range,
+    int num_features,
     SerialStorage& data_loader
 );
 

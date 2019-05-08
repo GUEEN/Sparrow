@@ -18,8 +18,7 @@ void validate(std::shared_ptr<Model>& model, const Config& config, std::vector<B
         num_examples,
         config.num_features,
         config.positive,
-        bins,
-        { 0, config.num_features }
+        bins
     );
 
     std::vector<double> scores(num_examples);
@@ -84,12 +83,11 @@ void training(const Config& config) {
         config.num_examples,
         config.num_features,
         config.positive,
-        std::vector<Bins>(),
-        config.range
+        std::vector<Bins>()
         );
 
     std::vector<Bins> bins = create_bins(
-        config.num_examples, config.max_bin_size, config.range, serial_training_loader);
+        config.num_examples, config.max_bin_size, config.num_features, serial_training_loader);
 
     std::vector<Example> validation_set1;
     std::vector<Example> validation_set2;
@@ -117,7 +115,6 @@ void training(const Config& config) {
         config.num_examples,
         config.batch_size,
         config.num_features,
-        config.range,
         bins
         );
 
@@ -141,7 +138,6 @@ void training(const Config& config) {
         bins,
         buffer_loader,
         // serial_training_loader,
-        config.range,
         config.max_sample_size,
         config.default_gamma,
         model

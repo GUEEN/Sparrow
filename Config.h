@@ -15,8 +15,6 @@ struct Config {
     int num_testing_examples;
     /// Number of examples to scan for generating heuristic used in Sparrow
     int num_features;
-    /// Range of the features for creating weak rules
-    Range range;
     /// Label for positive examples
     std::string positive;
     /// Number of testing examples

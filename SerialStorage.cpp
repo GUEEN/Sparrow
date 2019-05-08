@@ -9,11 +9,10 @@ SerialStorage::SerialStorage(
     int size,
     int feature_size,
     const std::string& positive,
-    const std::vector<Bins>& bins,
-    Range range
+    const std::vector<Bins>& bins
     ) : filename(filename), is_binary(false), in_memory(false), size(size), 
     feature_size(feature_size), positive(positive), bytes_per_example(0), 
-    reader(filename), index(0), bins(bins), range(range), head(0), tail(0) {
+    reader(filename), index(0), bins(bins), head(0), tail(0) {
 }
 
 std::vector<RawExample> SerialStorage::read_raw(int batch_size) {
@@ -40,8 +39,6 @@ std::vector<Example> SerialStorage::read(int batch_size) {
         return std::vector<Example>(memory_buffer.begin() + head, memory_buffer.begin() + tail);
     }
     // Load from disk
-    int start = range.start;
-    int end = range.end;
 
     std::vector<Example> batch;
 
@@ -61,12 +58,8 @@ std::vector<Example> SerialStorage::read(int batch_size) {
         for (const RawExample& rexample : raw_batch) {
             std::vector<TFeature> feature;
             for (int index = 0; index < rexample.feature.size(); ++index) {
-                if (start <= index && index < end) {
-                    double val = rexample.feature[index];
-                    feature.push_back(bins[index - start].get_split_index(val));
-                } else {
-                    feature.push_back(0);
-                }
+                double val = rexample.feature[index];
+                feature.push_back(bins[index].get_split_index(val));
             }
             batch.emplace_back(feature, rexample.label);
         }
@@ -154,12 +147,10 @@ std::string TextToBinHelper::gen_filename() {
 std::vector<Bins> create_bins(
     int max_sample_size,
     int max_bin_size,
-    Range range,
+    int num_features,
     SerialStorage& data_loader) {
-    int start = range.start;
-    int range_size = range.end - start;
 
-    std::vector<DistinctValues> distinct(range_size);
+    std::vector<DistinctValues> distinct(num_features);
 
     int remaining_reads = max_sample_size;
 
@@ -172,7 +163,7 @@ std::vector<Bins> create_bins(
         for (int i = 0; i < data.size(); ++i) {
             std::vector<RawTFeature>& feature = data[i].feature;
             for (int index = 0; index < distinct.size(); ++index) {
-                distinct[index].update(feature[start + index]);
+                distinct[index].update(feature[index]);
             }
         }
         remaining_reads -= data.size();
